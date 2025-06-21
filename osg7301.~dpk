@@ -1,0 +1,48 @@
+package osg7301;
+
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS OFF}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS ON}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST ON}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'ObjectSight TopGrid Unbound RunTime'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  vcl,
+  rtl;
+
+contains
+  TSSetLib in '..\..\Source\TSSetLib.pas',
+  TSDateTime in '..\..\Source\TSDateTime.pas',
+  TSDateTimeDef in '..\..\Source\TSDateTimeDef.pas',
+  TSGLib in '..\..\Source\TSGLib.pas',
+  TSGrid in '..\..\Source\TSGrid.pas',
+  TSImageList in '..\..\Source\TSImageList.pas',
+  TSMask in '..\..\Source\TSMask.pas',
+  TSMbcs in '..\..\Source\TSMbcs.pas',
+  TSCommon in '..\..\Source\TSCommon.pas',
+  osSortLib in '..\..\Source\osSortLib.pas',
+  duTgMemo in '..\..\Source\duTgMemo.pas' {dgTgMemo},
+  duTgFieldSelector in '..\..\Source\duTgFieldSelector.pas',
+  Grids_ts in 'Grids_ts.pas';
+
+end.

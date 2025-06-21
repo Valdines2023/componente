@@ -17,58 +17,58 @@ uses
 const
     RIGHT_PRINT_MARGIN = 1;
 
-function  IsSpaceChar(PText: PAnsiChar; Index: Integer) : Boolean;
-function  IsTextChar(PText: PAnsiChar; Index: Integer) : Boolean;
-function  NextWordCount(PText : PAnsiChar; Offset : Integer) : Integer;
-function  PrevWordCount(PText : PAnsiChar; Offset : Integer) : Integer;
+function  IsSpaceChar(PText: PChar; Index: Integer) : Boolean;
+function  IsTextChar(PText: PChar; Index: Integer) : Boolean;
+function  NextWordCount(PText : PChar; Offset : Integer) : Integer;
+function  PrevWordCount(PText : PChar; Offset : Integer) : Integer;
 function  IsLeadByte(Key: Char): Boolean;
-function  StrRNSpaceScan(Text : PAnsiChar; Chars : Cardinal) : PAnsiChar;
-function  StrNSkipSpace(Text: PAnsiChar; Chars: Cardinal): PAnsiChar;
-function  StrRNTextScan(Text : PAnsiChar; Chars : Cardinal) : PAnsiChar;
-function  StrNScanEol(Text: PAnsiChar; Chars: Integer): PAnsiChar;
-function  LastCharIsEofLine(PText : PAnsiChar; Offset : Integer) : Boolean;
-procedure GetPrintCharWidth(Canvas : TCanvas; Metric: TTextMetric; Text : PAnsiChar;
+function  StrRNSpaceScan(Text : PChar; Chars : Cardinal) : PChar;
+function  StrNSkipSpace(Text: PChar; Chars: Cardinal): PChar;
+function  StrRNTextScan(Text : PChar; Chars : Cardinal) : PChar;
+function  StrNScanEol(Text: PChar; Chars: Integer): PChar;
+function  LastCharIsEofLine(PText : PChar; Offset : Integer) : Boolean;
+procedure GetPrintCharWidth(Canvas : TCanvas; Metric: TTextMetric; Text : PChar;
                             Chars : Integer; MultiLine : Boolean; WithOverhang: Boolean; var Width : Integer);
 function  IsMultiLineText(RowHeight : Integer; TextHeight : Integer) : Boolean;
-procedure PCountChars(Text: PAnsiChar; MaxChars, TextLen: Integer; var CharCount, ByteCount: Integer; Reverse: Boolean);
-function  PCharToByteLen(Text: PAnsiChar; MaxChars, TextLen: Integer; Reverse: Boolean): Integer;
-function  PByteToCharLen(Text: PAnsiChar; MaxLen, TextLen: Integer): Integer;
-function  GetNextLine(Dc : Hdc; Metric : TTextMetric; Text : PAnsiChar; DrawWidth : Integer;
+procedure PCountChars(Text: PChar; MaxChars, TextLen: Integer; var CharCount, ByteCount: Integer; Reverse: Boolean);
+function  PCharToByteLen(Text: PChar; MaxChars, TextLen: Integer; Reverse: Boolean): Integer;
+function  PByteToCharLen(Text: PChar; MaxLen, TextLen: Integer): Integer;
+function  GetNextLine(Dc : Hdc; Metric : TTextMetric; Text : PChar; DrawWidth : Integer;
                       Align : TAlignment; var Chars : Integer) : Boolean;
-procedure GetTextLines(Dc : Hdc; Text : PAnsiChar; RowHeight : Integer; DrawWidth : Integer;
+procedure GetTextLines(Dc : Hdc; Text : PChar; RowHeight : Integer; DrawWidth : Integer;
                        Align : TAlignment; CanWordWrap: Boolean; var Lines : TtsIntegerList; MaxLines: Integer);
-procedure GetTextHeight(Dc : Hdc; Text : PAnsiChar; DrawWidth : Integer; Align : TAlignment;
+procedure GetTextHeight(Dc : Hdc; Text : PChar; DrawWidth : Integer; Align : TAlignment;
                         CanWordWrap: Boolean; var TextLines, TextHeight: Integer);
 function  TextLineSpacing(const Metric: TTextMetric): Integer;
 function  GetVertTopOffset(Top: Integer; TextRect: TRect; TextLines: TtsIntegerList;
                            LineSpacing: Integer; VertAlign: TtsVertAlignment; const Metric: TTextMetric): Integer;
-procedure DisplayText(Canvas : TCanvas; Text : PAnsiChar; RowHeight : Integer; TextRect : TRect;
+procedure DisplayText(Canvas : TCanvas; Text : PChar; RowHeight : Integer; TextRect : TRect;
                       Left, Top, Padding : Integer; Align : TAlignment; VertAlign: TtsVertAlignment;
                       CanWordWrap, ShowEllipsis, GradientFill: Boolean; AccelPos: Integer; GradientColor : TColor = clBlue);
-procedure DisplayTextLines(Canvas : TCanvas; Text : PAnsiChar; RowHeight : Integer;
+procedure DisplayTextLines(Canvas : TCanvas; Text : PChar; RowHeight : Integer;
                            TextRect : TRect; Left, Top, Padding : Integer; FirstChar, FirstRow : Integer;
                            Lines : TtsIntegerList; SelStart, SelLength : Integer;
                            SelColor, SelFontColor : TColor; Align : TAlignment;
                            VertAlign: TtsVertAlignment; CanWordWrap: Boolean);
 function EllipsisText(Text : String; var PrintChars : Integer; Canvas : TCanvas) : String;
 procedure DrawBackgroundPattern(Canvas: TCanvas; rectClient : TRect; baseColor : TColor);
-procedure DisplayTextLineSingle(Canvas : TCanvas; Metric : TTextMetric; Text : PAnsiChar;
+procedure DisplayTextLineSingle(Canvas : TCanvas; Metric : TTextMetric; Text : PChar;
                                 TextLen : Integer; TextOffset: Integer; TextRect : TRect;
                                 Left, Top, Padding : Integer; SelStart, SelLength : Integer;
                                 SelColor, SelFontColor : TColor; Align : TAlignment;
                                 VertAlign: TtsVertAlignment; AccelPos: Integer; ShowEllipsis, GradientFill : Boolean; GradientColor : TColor);
-procedure DisplayTextLinesMulti(Canvas : TCanvas; Metric : TTextMetric; Text : PAnsiChar;
+procedure DisplayTextLinesMulti(Canvas : TCanvas; Metric : TTextMetric; Text : PChar;
                                 TextRect : TRect; Left, Top : Integer; FirstRow : Integer;
                                 Lines : TtsIntegerList; SelStart, SelLength, RightPadding : Integer;
                                 SelColor, SelFontColor : TColor; Align : TAlignment;
                                 VertAlign: TtsVertAlignment; GradientFill : Boolean; GradientColor : TColor = clBlue);                                
 procedure DisplayTextWithSelect(Canvas : TCanvas; Metric: TTextMetric;
-                                Text : PAnsiChar; Chars : Integer; TextRect : TRect;
+                                Text : PChar; Chars : Integer; TextRect : TRect;
                                 Left, Top : Integer; SelStart, SelLength : Integer;
                                 SelColor, SelFontColor : TColor; AccelPos: Integer;
                                 LineSpacing: Integer; withEllipsis : Boolean = false);
 procedure TextOutAccel(Canvas: TCanvas; const Metric: TTextMetric; X, Y: Integer;
-                       Options: Longint; Rect: PRect; Str: PAnsiChar; Count: Longint;
+                       Options: Longint; Rect: PRect; Str: PChar; Count: Longint;
                        Dx: PInteger; AccelPos: Integer; withEllipsis : Boolean = false);
                                                        
 implementation
@@ -86,7 +86,7 @@ type
 var
     OverhangIncluded: Boolean;
 
-function GetTextExtent(Dc: Hdc; Metric: TTextMetric; Text: PAnsiChar;
+function GetTextExtent(Dc: Hdc; Metric: TTextMetric; Text: PChar;
                        Chars: Integer; var TextSize: TSize): Boolean;
 begin
     Result := GetTextExtentPoint32(Dc, Text, Chars, TextSize);
@@ -94,7 +94,7 @@ begin
 end;
 
 procedure TextOutAccel(Canvas: TCanvas; const Metric: TTextMetric; X, Y: Integer;
-                       Options: Longint; Rect: PRect; Str: PAnsiChar; Count: Longint;
+                       Options: Longint; Rect: PRect; Str: PChar; Count: Longint;
                        Dx: PInteger; AccelPos: Integer; withEllipsis : Boolean);
 var
     OldStyle: TFontStyles;
@@ -154,9 +154,9 @@ begin
     Result := Key in LeadBytes;
 end;
 
-function StrNScanEol(Text: PAnsiChar; Chars: Integer): PAnsiChar;
+function StrNScanEol(Text: PChar; Chars: Integer): PChar;
 var
-    Ptr1, Ptr2: PAnsiChar;
+    Ptr1, Ptr2: PChar;
 begin
     Ptr1 := AnsiStrNScan(Text, Chr(VK_RETURN), Chars);
     Ptr2 := AnsiStrNScan(Text, Chr(CH_LINEFEED), Chars);
@@ -171,30 +171,30 @@ begin
         Result := Ptr2;
 end;
 
-function IsSpaceChar(PText: PAnsiChar; Index: Integer) : Boolean;
+function IsSpaceChar(PText: PChar; Index: Integer) : Boolean;
 begin
     Result := False;
     if StrByteType(PText, Index) <> mbSingleByte then Exit;
     Result := (Ord(PText[Index]) = VK_TAB) Or (PText[Index] = ' ');
 end;
 
-function IsTextChar(PText: PAnsiChar; Index: Integer) : Boolean;
+function IsTextChar(PText: PChar; Index: Integer) : Boolean;
 begin
     Result := (not IsSpaceChar(PText, Index)) and
               (not EofLineChar(PText, Index)) and
               (PText[Index] <> #0)
 end;
 
-function StrRNSpaceScan(Text : PAnsiChar; Chars : Cardinal) : PAnsiChar;
+function StrRNSpaceScan(Text : PChar; Chars : Cardinal) : PChar;
 var
-    Ptr : PAnsiChar;
+    Ptr : PChar;
 begin
     Result := AnsiStrRNScan(Text, ' ', Chars);
     Ptr := AnsiStrRNScan(Text, Chr(VK_TAB), Chars);
     if Ptr > Result then Result := Ptr;
 end;
 
-function StrRNTextScan(Text : PAnsiChar; Chars : Cardinal) : PAnsiChar;
+function StrRNTextScan(Text : PChar; Chars : Cardinal) : PChar;
 var
     CharCnt: Cardinal;
 begin
@@ -210,7 +210,7 @@ begin
     if Chars >= 1 then Result := Text + Chars - CharCnt;
 end;
 
-function StrNSkipSpace(Text: PAnsiChar; Chars: Cardinal): PAnsiChar;
+function StrNSkipSpace(Text: PChar; Chars: Cardinal): PChar;
 var
     Count, CharCnt: Cardinal;
 begin
@@ -224,7 +224,7 @@ begin
     Result := Text + Count;
 end;
 
-function NextWordCount(PText : PAnsiChar; Offset : Integer) : Integer;
+function NextWordCount(PText : PChar; Offset : Integer) : Integer;
 var
     Pos : Integer;
     Chars : Integer;
@@ -247,7 +247,7 @@ begin
     Result := Pos - Offset;
 end;
 
-function PrevWordCount(PText : PAnsiChar; Offset : Integer) : Integer;
+function PrevWordCount(PText : PChar; Offset : Integer) : Integer;
 var
     Pos : Integer;
     Chars : Integer;
@@ -270,7 +270,7 @@ begin
     Result := Offset - Pos;
 end;
 
-procedure GetTextWidthPos(Dc : Hdc; Metric: TTextMetric; Text : PAnsiChar; TextLen : Integer;
+procedure GetTextWidthPos(Dc : Hdc; Metric: TTextMetric; Text : PChar; TextLen : Integer;
                           DrawWidth : Integer; Step : Integer; var Chars : Integer);
 var
     TextSize : TSize;
@@ -302,7 +302,7 @@ begin
     end;
 end;
 
-procedure PCountChars(Text: PAnsiChar; MaxChars, TextLen: Integer; var CharCount, ByteCount: Integer; Reverse: Boolean);
+procedure PCountChars(Text: PChar; MaxChars, TextLen: Integer; var CharCount, ByteCount: Integer; Reverse: Boolean);
 var
     CntChars, CntBytes: Integer;
     TextChars: Integer;
@@ -340,7 +340,7 @@ begin
     end;
 end;
 
-function PCharToByteLen(Text: PAnsiChar; MaxChars, TextLen: Integer; Reverse: Boolean): Integer;
+function PCharToByteLen(Text: PChar; MaxChars, TextLen: Integer; Reverse: Boolean): Integer;
 var
     Chars: Integer;
 begin
@@ -357,7 +357,7 @@ begin
         Result := MaxChars;
 end;
 
-function PByteToCharLen(Text: PAnsiChar; MaxLen, TextLen: Integer): Integer;
+function PByteToCharLen(Text: PChar; MaxLen, TextLen: Integer): Integer;
 var
     Bytes: Integer;
 begin
@@ -369,12 +369,12 @@ begin
     if tsIsFarEast then PCountChars(Text, MaxLen, MaxLen, Result, Bytes, False);
 end;
 
-function GetNextLine(Dc : Hdc; Metric : TTextMetric; Text : PAnsiChar; DrawWidth : Integer;
+function GetNextLine(Dc : Hdc; Metric : TTextMetric; Text : PChar; DrawWidth : Integer;
                      Align : TAlignment; var Chars : Integer) : Boolean;
 var
     Step : Integer;
     TextSize : TSize;
-    Ptr : PAnsiChar;
+    Ptr : PChar;
     TextLen : Integer;
     SpaceChars: Integer;
 begin
@@ -448,12 +448,12 @@ begin
     Result := (Chars <> 0);
 end;
 
-procedure AdjustWidthForCRLF(Dc : HDC; Metric: TTextMetric; Text : PAnsiChar;
+procedure AdjustWidthForCRLF(Dc : HDC; Metric: TTextMetric; Text : PChar;
                              TextLen : Integer; var Width : Longint);
 var
     RemainingChars : Integer;
     CharCount : Integer;
-    PReturn : PAnsiChar;
+    PReturn : PChar;
     TextSize : TSize;
 begin
     RemainingChars := TextLen;
@@ -477,12 +477,12 @@ begin
     end;
 end;
 
-procedure GetVisibleChars(Dc : HDC; Metric : TTextMetric; Text : PAnsiChar; TextLen : Integer;
+procedure GetVisibleChars(Dc : HDC; Metric : TTextMetric; Text : PChar; TextLen : Integer;
                           DrawWidth : Integer; var Chars : Integer; var Width : Integer;
                           Align : TAlignment);
 var
     TextSize : TSize;
-    CharPos : PAnsiChar;
+    CharPos : PChar;
     CharCnt, EolPos : Integer;
 begin
     //if Align = taCenter then
@@ -555,11 +555,11 @@ begin
     if Width > 0 then Width := Width + Metric.tmOverhang;
 end;
 
-procedure GetPrintCharWidth(Canvas : TCanvas; Metric: TTextMetric; Text : PAnsiChar;
+procedure GetPrintCharWidth(Canvas : TCanvas; Metric: TTextMetric; Text : PChar;
                             Chars : Integer; MultiLine : Boolean;
                             WithOverhang: Boolean; var Width : Integer);
 var
-    PReturn : PAnsiChar;
+    PReturn : PChar;
     TextSize : TSize;
     RetChars : Integer;
 begin
@@ -594,7 +594,7 @@ begin
     if (Width > 0) and WithOverhang then Width := Width + Metric.tmOverhang;
 end;
 
-function LastCharIsEofLine(PText : PAnsiChar; Offset : Integer) : Boolean;
+function LastCharIsEofLine(PText : PChar; Offset : Integer) : Boolean;
 begin
     Result := false;
     if PText = nil then Exit;
@@ -608,13 +608,13 @@ begin
     Result := (RowHeight - TextHeight) >= (TextHeight div 3);
 end;
 
-procedure GetTextLines(Dc : Hdc; Text : PAnsiChar; RowHeight : Integer; DrawWidth : Integer;
+procedure GetTextLines(Dc : Hdc; Text : PChar; RowHeight : Integer; DrawWidth : Integer;
                        Align : TAlignment; CanWordWrap: Boolean; var Lines : TtsIntegerList; MaxLines: Integer);
 var
     Chars : Integer;
     TotalChars : Integer;
     Metric : TTextMetric;
-    PText : PAnsiChar;
+    PText : PChar;
     TopOffset, LineSpacing: Integer;
 begin
     GetTextMetrics(Dc, Metric);
@@ -647,14 +647,14 @@ begin
     end;
 end;
 
-procedure GetTextHeight(Dc : Hdc; Text : PAnsiChar; DrawWidth : Integer;
+procedure GetTextHeight(Dc : Hdc; Text : PChar; DrawWidth : Integer;
                         Align : TAlignment; CanWordWrap: Boolean;
                         var TextLines, TextHeight: Integer);
 var
     Chars : Integer;
     TotalChars : Integer;
     Metric : TTextMetric;
-    PText : PAnsiChar;
+    PText : PChar;
 begin
     TextLines := 0;
     GetTextMetrics(Dc, Metric);
@@ -742,7 +742,7 @@ begin
 end;
 
 procedure DisplayTextWithSelect(Canvas : TCanvas; Metric: TTextMetric;
-                                Text : PAnsiChar; Chars : Integer; TextRect : TRect;
+                                Text : PChar; Chars : Integer; TextRect : TRect;
                                 Left, Top : Integer; SelStart, SelLength : Integer;
                                 SelColor, SelFontColor : TColor; AccelPos: Integer;
                                 LineSpacing: Integer; withEllipsis : Boolean);
@@ -835,7 +835,7 @@ begin
   PrintChars := Length(Result);
 end;
 
-procedure DisplayTextLineSingle(Canvas : TCanvas; Metric : TTextMetric; Text : PAnsiChar;
+procedure DisplayTextLineSingle(Canvas : TCanvas; Metric : TTextMetric; Text : PChar;
                                 TextLen : Integer; TextOffset: Integer; TextRect : TRect;
                                 Left, Top, Padding : Integer; SelStart, SelLength : Integer;
                                 SelColor, SelFontColor : TColor; Align : TAlignment;
@@ -845,7 +845,7 @@ var
     PrintChars : Integer;
     PrintWidth : Integer;
     ARect, ClipRect : TRect;
-    PReturn : PAnsiChar;
+    PReturn : PChar;
     TextSize : TSize;
     LeftOffset, RightPadding  : Integer;
     CanCenter: Boolean;
@@ -903,7 +903,7 @@ begin
 
         if (PrintChars < TextLen) and
            (ShowEllipsis) then
-           Text := PAnsiChar(EllipsisText(String(Text), PrintChars, Canvas));
+           Text := Pchar(EllipsisText(String(Text), PrintChars, Canvas));
     end
     else if Align = taRightJustify then
     begin
@@ -1018,7 +1018,7 @@ begin
     end;
 end;
 
-procedure DisplayText(Canvas : TCanvas; Text : PAnsiChar; RowHeight : Integer;
+procedure DisplayText(Canvas : TCanvas; Text : PChar; RowHeight : Integer;
                       TextRect : TRect; Left, Top, Padding : Integer;
                       Align : TAlignment; VertAlign: TtsVertAlignment;
                       CanWordWrap, ShowEllipsis, GradientFill: Boolean; AccelPos: Integer; GradientColor : TColor);
@@ -1065,7 +1065,7 @@ begin
               {if (PrintChars < TextLen) and
                  (ShowEllipsis) then
               begin
-                Text := PAnsiChar(EllipsisText(String(Text), PrintChars, Canvas));
+                Text := Pchar(EllipsisText(String(Text), PrintChars, Canvas));
                 TextLen := PrintChars;
               end;}
               TextOutAccel(Canvas, Metric, Left, Top, Options, @TextRect, Text,
@@ -1168,7 +1168,7 @@ begin
     end;
 end;
 
-procedure DisplayTextLinesMulti(Canvas : TCanvas; Metric : TTextMetric; Text : PAnsiChar;
+procedure DisplayTextLinesMulti(Canvas : TCanvas; Metric : TTextMetric; Text : PChar;
                                 TextRect : TRect; Left, Top : Integer; FirstRow : Integer;
                                 Lines : TtsIntegerList; SelStart, SelLength, RightPadding : Integer;
                                 SelColor, SelFontColor : TColor; Align : TAlignment;
@@ -1261,7 +1261,7 @@ begin
     end;
 end;
 
-procedure DisplayTextLines(Canvas : TCanvas; Text : PAnsiChar; RowHeight : Integer;
+procedure DisplayTextLines(Canvas : TCanvas; Text : PChar; RowHeight : Integer;
                            TextRect : TRect; Left, Top, Padding : Integer;
                            FirstChar, FirstRow : Integer;
                            Lines : TtsIntegerList; SelStart, SelLength : Integer;

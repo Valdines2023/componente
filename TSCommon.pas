@@ -214,11 +214,11 @@ procedure SwapLongint(var High, Low: Longint);
 function  Sign(Value: Integer): Integer;
 function  PointInRect(APoint: TPoint; ARect: TRect): Boolean;
 
-function  StrNScan(Text : PAnsiChar; Chr : AnsiChar; Chars : Cardinal) : PAnsiChar;
-function  StrRNScan(Text : PAnsiChar; Chr : AnsiChar; Chars : Cardinal): PAnsiChar;
-function  AnsiStrNScan(Text : PAnsiChar; Chr : AnsiChar; Chars : Cardinal): PAnsiChar;
-function  AnsiStrRNScan(Text : PAnsiChar; Chr : AnsiChar; Chars : Cardinal): PAnsiChar;
-function  CheckEscapeChars(Str: string; CheckChar, EscapeChar: AnsiChar): string;
+function  StrNScan(Text : PChar; Chr : Char; Chars : Cardinal) : PChar;
+function  StrRNScan(Text : PChar; Chr : Char; Chars : Cardinal): PChar;
+function  AnsiStrNScan(Text : PChar; Chr : Char; Chars : Cardinal): PChar;
+function  AnsiStrRNScan(Text : PChar; Chr : Char; Chars : Cardinal): PChar;
+function  CheckEscapeChars(Str: string; CheckChar, EscapeChar: Char): string;
 
 function  VariantToObject(Value: Variant): TObject;
 function  ObjectToVariant(Value: TObject): Variant;
@@ -415,7 +415,7 @@ begin
               (APoint.Y >= ARect.Top) and (APoint.Y <= ARect.Bottom);
 end;
 
-function StrNScan(Text : PAnsiChar; Chr : AnsiChar; Chars : Cardinal): PAnsiChar; assembler;
+function StrNScan(Text : PChar; Chr : Char; Chars : Cardinal): PChar; assembler;
 asm
         PUSH    EDI
         MOV     EDI,Text
@@ -432,7 +432,7 @@ asm
 @@1:    POP     EDI
 end;
 
-function StrRNScan(Text : PAnsiChar; Chr : AnsiChar; Chars : Cardinal): PAnsiChar; assembler;
+function StrRNScan(Text : PChar; Chr : Char; Chars : Cardinal): PChar; assembler;
 asm
         PUSH    EDI
         ADD     EAX,Chars
@@ -453,7 +453,7 @@ asm
         POP     EDI
 end;
 
-function AnsiStrNScan(Text : PAnsiChar; Chr : AnsiChar; Chars : Cardinal): PAnsiChar;
+function AnsiStrNScan(Text : PChar; Chr : Char; Chars : Cardinal): PChar;
 var
     CharsDone: Cardinal;
 begin
@@ -469,7 +469,7 @@ begin
     end;
 end;
 
-function AnsiStrRNScan(Text : PAnsiChar; Chr : AnsiChar; Chars : Cardinal): PAnsiChar;
+function AnsiStrRNScan(Text : PChar; Chr : Char; Chars : Cardinal): PChar;
 begin
     Result := StrRNScan(Text, Chr, Chars);
     while Result <> nil do
@@ -482,7 +482,7 @@ begin
     end;
 end;
 
-function CheckEscapeChars(Str: string; CheckChar, EscapeChar: AnsiChar): string;
+function CheckEscapeChars(Str: string; CheckChar, EscapeChar: Char): string;
 var
     CharPos : Integer;
 begin
@@ -663,9 +663,9 @@ var
 begin
     Result := tsMDY;
     I := 1;
-    while I <= Length(FormatSettings.ShortDateFormat) do
+    while I <= Length(ShortDateFormat) do
     begin
-        case Chr(Ord(FormatSettings.ShortDateFormat[I]) and $DF) of
+        case Chr(Ord(ShortDateFormat[I]) and $DF) of
             'E': Result := tsYMD;
             'Y': Result := tsYMD;
             'M': Result := tsMDY;
@@ -682,22 +682,22 @@ function GetEditDateFormat(IncludeCentury: Boolean): string;
 var
     DayFmt, MonthFmt, YearFmt: string;
 begin
-    if AnsiPos('DD', UpperCase(FormatSettings.ShortDateFormat)) <> 0
+    if AnsiPos('DD', UpperCase(ShortDateFormat)) <> 0
         then DayFmt := 'DD'
         else DayFmt := 'D';
-    if AnsiPos('MM', UpperCase(FormatSettings.ShortDateFormat)) <> 0
+    if AnsiPos('MM', UpperCase(ShortDateFormat)) <> 0
         then MonthFmt := 'MM'
         else MonthFmt := 'M';
-    if IncludeCentury or (AnsiPos('YYY', UpperCase(FormatSettings.ShortDateFormat)) <> 0)
+    if IncludeCentury or (AnsiPos('YYY', UpperCase(ShortDateFormat)) <> 0)
         then YearFmt := 'YYYY'
         else YearFmt := 'YY';
 
     case GetDateOrder of
-        tsYMD: Result := YearFmt + FormatSettings.DateSeparator + MonthFmt + FormatSettings.DateSeparator + DayFmt;
-        tsMDY: Result := MonthFmt + FormatSettings.DateSeparator + DayFmt + FormatSettings.DateSeparator + YearFmt;
-        tsDMY: Result := DayFmt + FormatSettings.DateSeparator + MonthFmt + FormatSettings.DateSeparator + YearFmt;
+        tsYMD: Result := YearFmt + DateSeparator + MonthFmt + DateSeparator + DayFmt;
+        tsMDY: Result := MonthFmt + DateSeparator + DayFmt + DateSeparator + YearFmt;
+        tsDMY: Result := DayFmt + DateSeparator + MonthFmt + DateSeparator + YearFmt;
     else
-        Result := MonthFmt + FormatSettings.DateSeparator + DayFmt + FormatSettings.DateSeparator + YearFmt;
+        Result := MonthFmt + DateSeparator + DayFmt + DateSeparator + YearFmt;
     end;
 end;
 
@@ -737,7 +737,7 @@ begin
     CharPos := ScanNum(Value, 1, 1);
     if CharPos > Length(Value) then
         Result := StrToInt(Value)
-    else if (CharPos >= 1) and (Value[CharPos] = FormatSettings.TimeSeparator) then
+    else if (CharPos >= 1) and (Value[CharPos] = TimeSeparator) then
     begin
         Result := StrToTime(Value);
     end
@@ -822,7 +822,7 @@ end;
 
 function AMPMFormat: Boolean;
 begin
-    Result := (FormatSettings.TimeAMString <> '') or (FormatSettings.TimePMString <> '');
+    Result := (TimeAMString <> '') or (TimePMString <> '');
 end;
 
 function FullWord(DateStr: string; StartPos, Len: Integer): Boolean;
@@ -832,7 +832,7 @@ begin
     Result := True;
     if StartPos > 1 then
     begin
-        Chars := PrevCharCount(PAnsiChar(DateStr), StartPos - 1);
+        Chars := PrevCharCount(PChar(DateStr), StartPos - 1);
         if IsCharAlphaNumeric(DateStr[StartPos-Chars]) then Result := False;
     end;
 
@@ -851,13 +851,13 @@ begin
     for I := 1 to 12 do
     begin
         Len := 0;
-        MPos := AnsiPos(UpperCase(FormatSettings.LongMonthNames[I]), CompStr);
+        MPos := AnsiPos(UpperCase(LongMonthNames[I]), CompStr);
         if MPos <> 0 then
-            Len := Length(FormatSettings.LongMonthNames[I])
+            Len := Length(LongMonthNames[I])
         else
         begin
-            MPos := AnsiPos(UpperCase(FormatSettings.ShortMonthNames[I]), CompStr);
-            if MPos <> 0 then Len := Length(FormatSettings.ShortMonthNames[I]);
+            MPos := AnsiPos(UpperCase(ShortMonthNames[I]), CompStr);
+            if MPos <> 0 then Len := Length(ShortMonthNames[I]);
         end;
 
         if (MPos <> 0) and FullWord(DateStr, MPos, Len) then
@@ -879,13 +879,13 @@ begin
     for I := 1 to 7 do
     begin
         Len := 0;
-        DPos := AnsiPos(UpperCase(FormatSettings.LongDayNames[I]), CompStr);
+        DPos := AnsiPos(UpperCase(LongDayNames[I]), CompStr);
         if DPos <> 0 then
-            Len := Length(FormatSettings.LongDayNames[I])
+            Len := Length(LongDayNames[I])
         else
         begin
-            DPos := AnsiPos(UpperCase(FormatSettings.ShortDayNames[I]), CompStr);
-            if DPos <> 0 then Len := Length(FormatSettings.ShortDayNames[I]);
+            DPos := AnsiPos(UpperCase(ShortDayNames[I]), CompStr);
+            if DPos <> 0 then Len := Length(ShortDayNames[I]);
         end;
 
         if (DPos <> 0) and FullWord(DateStr, DPos, Len) then
@@ -899,7 +899,7 @@ end;
 
 function SeparateCheckBoxValues(CheckBoxValues: string; var StrChecked, StrUnchecked, StrGrayed: string): Boolean;
 var
-    P, S: PAnsiChar;
+    P, S: PChar;
     Separator: string;
 begin
     Result := True;
@@ -908,27 +908,27 @@ begin
     StrGrayed := '';
     if Length(CheckBoxValues) = 0 then Exit;
 
-    S := PAnsiChar(CheckBoxValues);
+    S := PChar(CheckBoxValues);
     Separator := CheckBoxValueSeparator;
-    P := AnsiStrPos(S, PAnsiChar(Separator));
+    P := AnsiStrPos(S, PChar(Separator));
     if P = nil then
         StrChecked := CheckBoxValues
     else
     begin
         StrChecked := Copy(CheckBoxValues, 1, Integer(P) - Integer(S));
         S := P + 1;
-        P := AnsiStrPos(S, PAnsiChar(Separator));
+        P := AnsiStrPos(S, PChar(Separator));
         if P = nil then
-            StrUnchecked := Copy(CheckBoxValues, Integer(S) - Integer(PAnsiChar(CheckBoxValues)) + 1, Length(CheckBoxValues))
+            StrUnchecked := Copy(CheckBoxValues, Integer(S) - Integer(PChar(CheckBoxValues)) + 1, Length(CheckBoxValues))
         else
         begin
-            StrUnchecked := Copy(CheckBoxValues, Integer(S) - Integer(PAnsiChar(CheckBoxValues)) + 1, Integer(P) - Integer(S));
+            StrUnchecked := Copy(CheckBoxValues, Integer(S) - Integer(PChar(CheckBoxValues)) + 1, Integer(P) - Integer(S));
             S := P + 1;
-            P := AnsiStrPos(S, PAnsiChar(Separator));
+            P := AnsiStrPos(S, PChar(Separator));
             if P = nil then
-                StrGrayed := Copy(CheckBoxValues, Integer(S) - Integer(PAnsiChar(CheckBoxValues)) + 1, Length(CheckBoxValues))
+                StrGrayed := Copy(CheckBoxValues, Integer(S) - Integer(PChar(CheckBoxValues)) + 1, Length(CheckBoxValues))
             else
-                StrGrayed := Copy(CheckBoxValues, Integer(S) - Integer(PAnsiChar(CheckBoxValues)) + 1, Integer(P) - Integer(S));
+                StrGrayed := Copy(CheckBoxValues, Integer(S) - Integer(PChar(CheckBoxValues)) + 1, Integer(P) - Integer(S));
         end;
     end;
 
@@ -1033,13 +1033,13 @@ end;
 function TextAccelKey(Value: string; var AccelKeyPos: Integer): string;
 var
     CurPos: Integer;
-    AccelStr: PAnsiChar;
+    AccelStr: PChar;
 begin
     Result := Value;
     AccelKeyPos := 0;
 
-    AccelStr := AnsiStrNScan(PAnsiChar(Value), '&', Length(Value));
-    if AccelStr <> nil then CurPos := AccelStr - PAnsiChar(Value) + 1
+    AccelStr := AnsiStrNScan(PChar(Value), '&', Length(Value));
+    if AccelStr <> nil then CurPos := AccelStr - PChar(Value) + 1
                        else CurPos := 0;
     if CurPos = 0 then Exit;
 
@@ -1056,8 +1056,8 @@ begin
             then Value := Copy(Value, CurPos + 2, Length(Value) - (CurPos + 1))
             else Value := '';
 
-        AccelStr := AnsiStrNScan(PAnsiChar(Value), '&', Length(Value));
-        if AccelStr <> nil then CurPos := AccelStr - PAnsiChar(Value) + 1
+        AccelStr := AnsiStrNScan(PChar(Value), '&', Length(Value));
+        if AccelStr <> nil then CurPos := AccelStr - PChar(Value) + 1
                            else CurPos := 0;
     end;
 
@@ -1162,9 +1162,9 @@ begin
     for I := 1 to List.Count do
     begin
         iMaxLen := Length(PName^);
-        if Length(PAnsiChar(List[I-1])) < iMaxLen then
-           iMaxLen := Length(PAnsiChar(List[I-1]));
-        CompRes := AnsiStrLIComp(PAnsiChar(@PName^[1]),  PAnsiChar(List[I-1]), iMaxLen);
+        if Length(PChar(List[I-1])) < iMaxLen then
+           iMaxLen := Length(PChar(List[I-1]));
+        CompRes := AnsiStrLIComp(PChar(@PName^[1]),  PChar(List[I-1]), iMaxLen);
         if (CompRes = 0) and (Length(PName^) = Length(List[I-1])) then Result := True;
         if CompRes <= 0 then Break;
     end;
@@ -1455,7 +1455,7 @@ var
 begin
     HelpFile := GetHelpFile(GetCompilerVersion);
     if HelpFile <> '' then
-        WinHelp(Handle, PAnsiChar(HelpFile), HELP_KEY, Longint(PAnsiChar(Key)));
+        WinHelp(Handle, PChar(HelpFile), HELP_KEY, Longint(PChar(Key)));
 end;
 
 function ScanNum(S: string; Pos: Integer; Direction: Integer): Integer;
@@ -1465,7 +1465,7 @@ begin
     Result := Pos;
     while (Result >= 1) and (Result <= Length(S)) do
     begin
-        Chars := NextCharCount(PAnsiChar(S), Result - 1);
+        Chars := NextCharCount(PChar(S), Result - 1);
         if Chars > 1 then Break;
         if not (S[Result] in ['0'..'9']) then Break;
         Inc(Result, Direction);
@@ -1479,9 +1479,9 @@ begin
     Result := Pos;
     while (Result >= 1) and (Result <= Length(S)) do
     begin
-        Chars := NextCharCount(PAnsiChar(S), Result - 1);
+        Chars := NextCharCount(PChar(S), Result - 1);
         if Chars > 1 then Break;
-        if not (S[Result] in ['0'..'9', FormatSettings.ThousandSeparator, FormatSettings.DecimalSeparator, '-', '+']) then Break;
+        if not (S[Result] in ['0'..'9', ThousandSeparator, DecimalSeparator, '-', '+']) then Break;
         Inc(Result, Direction);
     end;
 end;
@@ -1501,7 +1501,7 @@ begin
     while Ok do
     begin
         Pos := ScanNum(S, PrevPos + 1, 1);
-        if (Pos > Length(S)) or (S[Pos] <> FormatSettings.ThousandSeparator) then
+        if (Pos > Length(S)) or (S[Pos] <> ThousandSeparator) then
         begin
             if (PrevPos <> 0) and (Pos - PrevPos <> 4)
                 then Ok := False
@@ -1509,7 +1509,7 @@ begin
             Break;
         end;
 
-        if S[Pos] <> FormatSettings.ThousandSeparator then Break;
+        if S[Pos] <> ThousandSeparator then Break;
         if (PrevPos = 0) and (Pos <= 1) then
             Ok := False
         else if (PrevPos > 0) and (Pos - PrevPos <> 4) then
@@ -1536,7 +1536,7 @@ begin
     Pos := Pos - 3;
     while Pos > 1 do
     begin
-        S := Copy(S, 1, Pos - 1) + FormatSettings.ThousandSeparator + Copy(S, Pos, Length(S));
+        S := Copy(S, 1, Pos - 1) + ThousandSeparator + Copy(S, Pos, Length(S));
         Pos := Pos - 3;
     end;
 end;
@@ -1560,7 +1560,7 @@ begin
     else
     begin
         HasThousands := RemoveThousandsSeparator(S);
-        Ok := TextToFloat(PAnsiChar(S), ExtValue, fvExtended);
+        Ok := TextToFloat(PChar(S), ExtValue, fvExtended);
         if Ok then
         begin
             Value := ExtValue;
@@ -1582,7 +1582,7 @@ var
 begin
     NumStr := S;
     RemoveThousandsSeparator(NumStr);
-    Result := TextToFloat(PAnsiChar(NumStr), Value, fvExtended);
+    Result := TextToFloat(PChar(NumStr), Value, fvExtended);
 end;
 
 function GetNumAtPos(S: string; Pos: Integer; var StartPos, Len: Integer): Boolean;
@@ -1600,7 +1600,7 @@ begin
     else if Pos > Length(S) then
         Pos := Length(S);
 
-    Chars := NextCharCount(PAnsiChar(S), Pos);
+    Chars := NextCharCount(PChar(S), Pos);
     SPos := ScanNumChars(S, Pos, -1) + 1;
     EPos := ScanNumChars(S, Pos + Chars, 1) - 1;
     if EPos < SPos then Exit;
@@ -1618,11 +1618,11 @@ begin
     EPos := ScanNum(S, Pos + Chars, 1) - 1;
     if EPos < SPos then Exit;
 
-    if (PrevCharCount(PAnsiChar(S), SPos - 1) = 1) and (S[SPos - 1] in ['-','+']) then
+    if (PrevCharCount(PChar(S), SPos - 1) = 1) and (S[SPos - 1] in ['-','+']) then
     begin
         if (SPos <= 2) then
             Dec(SPos)
-        else if (PrevCharCount(PAnsiChar(S), SPos - 2) <> 1) or not (S[SPos - 2] in ['0'..'9']) then
+        else if (PrevCharCount(PChar(S), SPos - 2) <> 1) or not (S[SPos - 2] in ['0'..'9']) then
             Dec(SPos);
     end;
 
@@ -1666,13 +1666,13 @@ function PadDecimals(Sample: string; NumStr: string): string;
 var
     DPos, NumDPos: Integer;
 begin
-    DPos := Pos(FormatSettings.DecimalSeparator, Sample);
-    NumDPos := Pos(FormatSettings.DecimalSeparator, NumStr);
+    DPos := Pos(DecimalSeparator, Sample);
+    NumDPos := Pos(DecimalSeparator, NumStr);
     if DPos <> 0 then
     begin
         if NumDPos = 0 then
         begin
-            NumStr := NumStr + FormatSettings.DecimalSeparator;
+            NumStr := NumStr + DecimalSeparator;
             NumDPos := Length(NumStr);
         end;
         while Length(Sample) - DPos > Length(NumStr) - NumDPos do
@@ -1687,12 +1687,12 @@ var
 begin
     NumStr := PadDecimals(Sample, NumStr);
 
-    DPos := Pos(FormatSettings.DecimalSeparator, Sample);
-    NumDPos := Pos(FormatSettings.DecimalSeparator, NumStr);
+    DPos := Pos(DecimalSeparator, Sample);
+    NumDPos := Pos(DecimalSeparator, NumStr);
     while Length(Sample) - DPos > Length(NumStr) - NumDPos do
     begin
-        if Sample[Length(Sample) - Length(NumStr)] = FormatSettings.ThousandSeparator then
-            NumStr := FormatSettings.ThousandSeparator + NumStr
+        if Sample[Length(Sample) - Length(NumStr)] = ThousandSeparator then
+            NumStr := ThousandSeparator + NumStr
         else
             NumStr := '0' + NumStr
     end;
@@ -2380,7 +2380,7 @@ begin
     Value := string(FData[Row][Col - 1]);
     StrLen := Length(Value);
     Stream.WriteBuffer(StrLen, SizeOf(StrLen));
-    Stream.WriteBuffer(PAnsiChar(Value)^, StrLen);
+    Stream.WriteBuffer(PChar(Value)^, StrLen);
 end;
 
 procedure Tts2DStorage.ReadString(Stream: TStream; Col, Row: Integer; ValueType: TtsValueType);

@@ -976,7 +976,7 @@ begin
     FComboMonth.Col[1].Combo.ComboGrid.StoreData := False;
     FComboMonth.Col[1].Combo.ComboGrid.StoreData := True;
     for I := 1 to 12 do
-        FComboMonth.Col[1].Combo.ComboGrid.Cell[1, I] := Formatsettings.LongMonthNames[I];
+        FComboMonth.Col[1].Combo.ComboGrid.Cell[1, I] := LongMonthNames[I];
     SetComboValue;
 end;
 
@@ -1347,8 +1347,8 @@ begin
             J := I + 1;
 
         case ShowDayNames of
-            sdnFirstLetter: FDayNames[I] := UpperCase(Copy(Formatsettings.ShortDayNames[J], 1, 1));
-            sdnShortDayNames: FDayNames[I] := Formatsettings.ShortDayNames[J];
+            sdnFirstLetter: FDayNames[I] := UpperCase(Copy(ShortDayNames[J], 1, 1));
+            sdnShortDayNames: FDayNames[I] := ShortDayNames[J];
             else FDayNames[I] := '';
         end;
     end;
@@ -1416,8 +1416,8 @@ begin
     Width := 0;
     for I := 1 to 12 do
     begin
-        if Canvas.TextWidth(Formatsettings.LongMonthNames[I]) > Width then
-            Width := Canvas.TextWidth(Formatsettings.LongMonthNames[I]);
+        if Canvas.TextWidth(LongMonthNames[I]) > Width then
+            Width := Canvas.TextWidth(LongMonthNames[I]);
     end;
 
     FComboMonth.ClientWidth := Round(Width * 1.3) + FComboMonth.DefaultButtonWidth;
@@ -1548,7 +1548,7 @@ end;
 
 function TtsDateTime.GetAMPMWidth: Integer;
 begin
-    Result := Round(Max(Canvas.TextWidth('AM'), Max(Canvas.TextWidth(Formatsettings.TimeAMString), Canvas.TextWidth(Formatsettings.TimePMString))) * 1.2);
+    Result := Round(Max(Canvas.TextWidth('AM'), Max(Canvas.TextWidth(TimeAMString), Canvas.TextWidth(TimePMString))) * 1.2);
 end;
 
 procedure TtsDateTime.PositionTimeControls(TextHeight: Integer);
@@ -1607,11 +1607,11 @@ begin
         FButAMPMDecr.Visible := True;
         FTxtAMPM.ClientWidth := GetAMPMWidth;
         AMPMOffset := (AMPMWidth - FTxtAMPM.Width) div 2;
-        FTxtAMPM.MaxLength := Max(Length(Formatsettings.TimeAMString), Length(Formatsettings.TimePMString));
+        FTxtAMPM.MaxLength := Max(Length(TimeAMString), Length(TimePMString));
     end;
 
-    FLblSep1.Caption := Formatsettings.TimeSeparator;
-    FLblSep2.Caption := Formatsettings.TimeSeparator;
+    FLblSep1.Caption := TimeSeparator;
+    FLblSep2.Caption := TimeSeparator;
 
     FTxtHour.ClientHeight := TextHeight;
     FTxtMinute.Height := FTxtHour.Height;
@@ -1735,7 +1735,7 @@ begin
     try
         ButYearIncrLeft := 0;
         if Assigned(Font) then Canvas.Font.Assign(Font);
-        TextHeight := Canvas.TextHeight(Formatsettings.LongMonthNames[1]);
+        TextHeight := Canvas.TextHeight(LongMonthNames[1]);
 
         if DateTimeDisplay in [dtDate, dtDateTime] then
         begin
@@ -1932,10 +1932,10 @@ end;
 
 procedure TtsDateTime.ToggleAMPM;
 begin
-    if Lowercase(Trim(FTxtAMPM.Text)) = Lowercase(Trim(Formatsettings.TimePMString)) then
-        FTxtAMPM.Text := Formatsettings.TimeAMString
+    if Lowercase(Trim(FTxtAMPM.Text)) = Lowercase(Trim(TimePMString)) then
+        FTxtAMPM.Text := TimeAMString
     else
-        FTxtAMPM.Text := Formatsettings.TimePMString;
+        FTxtAMPM.Text := TimePMString;
 end;
 
 procedure TtsDateTime.SetButControlFocus(Button: TSpeedButton);
@@ -2826,7 +2826,7 @@ begin
         else
         begin
             FPnlTime.SetFocus;
-            FDateTime := StrToTime(FTxtHour.Text + Formatsettings.TimeSeparator + FTxtMinute.Text + Formatsettings.TimeSeparator + FTxtSeconds.Text + ' ' + FTxtAMPM.Text);
+            FDateTime := StrToTime(FTxtHour.Text + TimeSeparator + FTxtMinute.Text + TimeSeparator + FTxtSeconds.Text + ' ' + FTxtAMPM.Text);
             if DateTimeDisplay = dtDateTime then FDateTime := TDateTime(FDateTime + FSelectedDate);
         end;
 
@@ -3174,7 +3174,7 @@ begin
                 FDateGrid.Canvas.Font.Color := MonthFontColor;
                 FDateGrid.Canvas.Font.Name := FDateGrid.Font.Name;
 
-                Temp := Formatsettings.LongMonthNames[Trunc(FRowData[Row].MonthYear mod 100)] + ' ' + IntToStr(FRowData[Row].MonthYear div 100);
+                Temp := LongMonthNames[Trunc(FRowData[Row].MonthYear mod 100)] + ' ' + IntToStr(FRowData[Row].MonthYear div 100);
 
                 x := (ARect.Right - ARect.Left - FDateGrid.Canvas.TextWidth(Temp)) div 2;
                 FDateGrid.Canvas.TextRect(ARect, ARect.Left + x, ARect.Top + 1 , Temp);
@@ -3748,10 +3748,10 @@ begin
         Close(False)
     else if Key = Chr(VK_RETURN) then
         Close(True)
-    else if (pos(LowerCase(Key), LowerCase(Formatsettings.TimeAMString)) = 1) or ((Key = ' ') and (Formatsettings.TimeAMString = '')) then
-        FTxtAMPM.Text := Formatsettings.TimeAMString
-    else if (pos(LowerCase(Key), LowerCase(Formatsettings.TimePMString)) = 1) or ((Key = ' ') and (Formatsettings.TimePMString = '')) then
-        FTxtAMPM.Text := Formatsettings.TimePMString;
+    else if (pos(LowerCase(Key), LowerCase(TimeAMString)) = 1) or ((Key = ' ') and (TimeAMString = '')) then
+        FTxtAMPM.Text := TimeAMString
+    else if (pos(LowerCase(Key), LowerCase(TimePMString)) = 1) or ((Key = ' ') and (TimePMString = '')) then
+        FTxtAMPM.Text := TimePMString;
 end;
 
 procedure TtsDateTime.HandleKeyDownHomeEnd(Key: Word);

@@ -14,13 +14,13 @@ unit TSDBGrid;
 interface
 
 uses
-    Windows, SysUtils, Messages, Classes, Controls, DB,
-    TSCommon, TSGrid, TSDateTimeDef, Grids_ts, TSSetLib, TSGLib, StdCtrls, Graphics,
-    Mask, Dialogs, Bde.DBTables, Datasnap.DBClient
-    {$IFDEF TSVER_V6}, FmtBcd, Variants, MaskUtils, BDE {$ENDIF};
+    Windows, SysUtils, Messages, Classes, Controls, DB, DBTables,
+    TSCommon, TSGrid, TSDateTimeDef, Bde, Grids_ts, TSSetLib, TSGLib, StdCtrls, Graphics,
+    Mask, Dialogs
+    {$IFDEF TSVER_V6}, FmtBcd, Variants, MaskUtils {$ENDIF};
 
 type
-
+    
     TtsAssignedValue       = (avAlignment, avWidth, avVisible, avMaxLength,
                               avControlType, avAllowGrayed);
     TtsAssignedValues      = set of TtsAssignedValue;
@@ -101,15 +101,15 @@ type
     {TtsBkmPos}
 
     TtsBkmPos = record
-        Bkm: TBookmark;
+        Bkm: TBookmarkStr;
         Offset: TtsBkmPosOffset;
     end;
 
     {TtsDatasetPosition}
     {Record type for storing the current position of the data in the grid}
-
+    
     TtsDatasetPosition = record
-        TopBkm: TBookmark;
+        TopBkm: TBookmarkStr;
         ActiveRow: Integer;
     end;
 
@@ -838,7 +838,7 @@ type
         function  NewNode(NodeValue : Pointer) : TtsSetNode; override;
         function  GetBkmList: TtsSetList;
         procedure ResetBkmList;
-        procedure GetBkmListPos(Bkm: TBookmark; var Top, Bottom: Integer);
+        procedure GetBkmListPos(Bkm: TBookmarkStr; var Top, Bottom: Integer);
 
         property  Grid: TtsCustomDBGrid read FGrid write FGrid;
         property  LastBkmListIndex: Integer read FLastBkmListIndex write FLastBkmListIndex;
@@ -913,11 +913,11 @@ type
         procedure AddSetSelection(const FromRow, ToRow: TtsBkmPos; var Changed: Boolean);
         procedure AddRangeSelection(const FromRow, ToRow: TtsBkmPos; var Changed: Boolean);
         procedure AddBkmPosSelection(const FromRow, ToRow: TtsBkmPos; var Changed: Boolean);
-        procedure AddSelection(FromRow, ToRow: TBookmark; var Changed: Boolean);
+        procedure AddSelection(FromRow, ToRow: TBookmarkStr; var Changed: Boolean);
         procedure RemoveRangeSelection(const FromRow, ToRow: TtsBkmPos; var Changed: Boolean);
         procedure RemoveSetSelection(const FromRow, ToRow: TtsBkmPos; var Changed: Boolean);
         procedure RemoveBkmPosSelection(const FromRow, ToRow: TtsBkmPos; var Changed: Boolean);
-        procedure RemoveSelection(FromRow, ToRow: TBookmark; var Changed: Boolean);
+        procedure RemoveSelection(FromRow, ToRow: TBookmarkStr; var Changed: Boolean);
         function  CombinePrevRange(var BkmPos: TtsBkmPos; var Index: Longint; SetToPrev: Boolean): Boolean;
         function  CombineNextRange(var BkmPos: TtsBkmPos; var Index: Longint; SetToNext: Boolean): Boolean;
         procedure CalcStartRange(BkmPos: TtsBkmPos; Index: Longint; var Range: TtsSelectedRange;
@@ -931,10 +931,10 @@ type
         procedure AddSelectedList(List: TtsSelectedList; ClearAll, SelectAll: Boolean; var Canceled: Boolean);
         procedure DeleteSelectedList(List: TtsSelectedList; SelectAll: Boolean; var Canceled: Boolean);
         procedure ChangeBkmPosSelection(const FromRow, ToRow: TtsBkmPos; CombineRange: TtsCombineRange);
-        procedure ChangeSelection(FromRow, ToRow: TBookmark);
+        procedure ChangeSelection(FromRow, ToRow: TBookmarkStr);
         procedure UpdateBkmPosSelection(FromRow, ToRow: TtsBkmPos; Select: Boolean);
-        procedure UpdateSelection(FromRow, ToRow: TBookmark; Select: Boolean);
-        procedure SetSelected(DataRow: TBookmark; Value: Boolean);
+        procedure UpdateSelection(FromRow, ToRow: TBookmarkStr; Select: Boolean);
+        procedure SetSelected(DataRow: TBookmarkStr; Value: Boolean);
         function  GetSelected(DataRow: Variant): Boolean;
         function  GetFirst: Variant;
         function  GetLast: Variant;
@@ -1146,7 +1146,7 @@ type
         function  IndexChanged: Boolean;
         procedure SaveCurIndex;
         procedure InitGridDataSet; virtual;
-        function  CompareBkm(Bkm1, Bkm2: TBookmark): Integer;
+        function  CompareBkm(Bkm1, Bkm2: TBookmarkStr): Integer;
         function  CheckCompareBkmPos(var BkmPos1, BkmPos2: TtsBkmPos;
                                      var Found: Boolean): Integer;
         function  CompareBkmPos(var BkmPos1, BkmPos2: TtsBkmPos): Integer;
@@ -1155,7 +1155,7 @@ type
         function  GreaterBkmPos(var BkmPos1, BkmPos2: TtsBkmPos): Boolean;
         function  LessBkmPos(var BkmPos1, BkmPos2: TtsBkmPos): Boolean;
         function  RecIDRow(ID: Variant): Integer;
-        function  BkmPosBookmark(const BkmPos: TtsBkmPos; var Bkm: TBookmark): Boolean;
+        function  BkmPosBookmark(const BkmPos: TtsBkmPos; var Bkm: TBookmarkStr): Boolean;
         function  ActualBkmPos(BkmPos: TtsBkmPos): TtsBkmPos;
         function  GetRecNo: Integer;
         procedure SetRecNo(Value: Integer);
@@ -1175,27 +1175,27 @@ type
         procedure SetActiveRecord(Value: Integer); virtual; abstract;
         function  GetActiveRecord: Integer; virtual; abstract;
         function  GetActiveRecordNumber: Longint; virtual; abstract;
-        function  GetActiveBookmark: TBookmark; virtual; abstract;
+        function  GetActiveBookmark: TBookmarkStr; virtual; abstract;
         function  GetRecCount: Longint; virtual; abstract;
         function  FirstRow: Longint; virtual; abstract;
         function  CurrentBufRow: Integer; virtual; abstract;
-        function  BufferPos(Bkm: TBookmark): Integer; virtual; abstract;
-        function  BufferRow(Bkm: TBookmark): Integer; virtual; abstract;
+        function  BufferPos(Bkm: TBookmarkStr): Integer; virtual; abstract;
+        function  BufferRow(Bkm: TBookmarkStr): Integer; virtual; abstract;
         function  BufferBkmPos(BkmPos: TtsBkmPos): Integer; virtual; abstract;
         function  MoveActive(Count: Longint; var MovedBy: Longint): Longint; virtual; abstract;
-        function  GetBookmark(BufRow: Integer): TBookmark; virtual; abstract;
+        function  GetBookmark(BufRow: Integer): TBookmarkStr; virtual; abstract;
         function  GetRecId(BufRow: Integer): Variant; virtual; abstract;
         function  GetRecordId(BufRow: Integer): Variant; virtual; abstract;
         function  ResizeBuffer(NewSize: Integer; var Redraw: Boolean): Boolean; virtual; abstract;
         function  OnLastRecord: Boolean; virtual; abstract;
-        function  NextBookmark(Bkm: TBookmark; var NextBkm: TBookmark): Boolean; virtual; abstract;
-        function  PrevBookmark(Bkm: TBookmark; var PrevBkm: TBookmark): Boolean; virtual; abstract;
+        function  NextBookmark(Bkm: TBookmarkStr; var NextBkm: TBookmarkStr): Boolean; virtual; abstract;
+        function  PrevBookmark(Bkm: TBookmarkStr; var PrevBkm: TBookmarkStr): Boolean; virtual; abstract;
         function  PrevBkmPos(const BkmPos: TtsBkmPos): TtsBkmPos; virtual; abstract;
         function  NextBkmPos(const BkmPos: TtsBkmPos): TtsBkmPos; virtual; abstract;
         function  CheckPrevBkmPos(const BkmPos: TtsBkmPos): TtsBkmPos; virtual; abstract;
         function  CheckNextBkmPos(const BkmPos: TtsBkmPos): TtsBkmPos; virtual; abstract;
-        function  FirstBookmark: TBookmark; virtual; abstract;
-        function  LastBookmark: TBookmark; virtual; abstract;
+        function  FirstBookmark: TBookmarkStr; virtual; abstract;
+        function  LastBookmark: TBookmarkStr; virtual; abstract;
         function  IsSequenced: Boolean; virtual;
         function  FirstBkmPos: TtsBkmPos; virtual;
         function  LastBkmPos: TtsBkmPos; virtual;
@@ -1207,44 +1207,44 @@ type
         procedure SetAtEnd(Value: Boolean); virtual; abstract;
         function  GetAtStart: Boolean; virtual; abstract;
         procedure SetAtStart(Value: Boolean); virtual; abstract;
-        function  MoveToRecord(Bkm: TBookmark): Boolean; virtual; abstract;
+        function  MoveToRecord(Bkm: TBookmarkStr): Boolean; virtual; abstract;
         procedure RereadBuffer(TopRow: Longint; ForceRead: Boolean); virtual; abstract;
         procedure SetProperties(Reread: Boolean); virtual; abstract;
-        function  BookmarkValue(Fieldno: Longint; Bkm: TBookmark): Variant; virtual; abstract;
-        function  GetBookmarkRecID(RecBkm: TBookmark; BufRownr: Integer): Variant; virtual; abstract;
-        function  GetBkmValueAndRecordID(Fieldno: Integer; Bkm: TBookmark; var FieldValue: Variant): Variant; virtual; abstract;
+        function  BookmarkValue(Fieldno: Longint; Bkm: TBookmarkStr): Variant; virtual; abstract;
+        function  GetBookmarkRecID(RecBkm: TBookmarkStr; BufRownr: Integer): Variant; virtual; abstract;
+        function  GetBkmValueAndRecordID(Fieldno: Integer; Bkm: TBookmarkStr; var FieldValue: Variant): Variant; virtual; abstract;
         function  DoRecCount(ReCount: Boolean): Longint; virtual; abstract;
         function  FindKey(Value: string; Fieldno: Integer; CompareType: TtsComboCompareType;
-                          ParentGrid: TtsCustomDBGrid; FullCmpLen: Boolean; var Found: Boolean): TBookmark; virtual; abstract;
-        function  LocateValue(FromBkm, ToBkm: TBookmark; Value: string; Fieldno: Integer;
+                          ParentGrid: TtsCustomDBGrid; FullCmpLen: Boolean; var Found: Boolean): TBookmarkStr; virtual; abstract;
+        function  LocateValue(FromBkm, ToBkm: TBookmarkStr; Value: string; Fieldno: Integer;
                               CompareType: TtsComboCompareType; ParentGrid: TtsCustomDBGrid;
-                              FullCmpLen: Boolean; var Found: Boolean): TBookmark; virtual; abstract;
-        function  GetPreviousBkms(var FromBkm: TBookmark; ToBkm: TBookmark; BkmList: TtsSelectedList;
+                              FullCmpLen: Boolean; var Found: Boolean): TBookmarkStr; virtual; abstract;
+        function  GetPreviousBkms(var FromBkm: TBookmarkStr; ToBkm: TBookmarkStr; BkmList: TtsSelectedList;
                                   StepSize: Integer; SelectingAll: Boolean; var Found: Boolean;
                                   var Count, Total: Longint; var Canceled: Boolean): Boolean; virtual; abstract;
-        function  GetNextBkms(var FromBkm: TBookmark; ToBkm: TBookmark; BkmList: TtsSelectedList;
+        function  GetNextBkms(var FromBkm: TBookmarkStr; ToBkm: TBookmarkStr; BkmList: TtsSelectedList;
                               StepSize: Integer; SelectingAll: Boolean; var Found: Boolean;
                               var Count, Total: Longint; var Canceled: Boolean): Boolean; virtual; abstract;
-        procedure SetBookmarkPos(Value: TBookmark); virtual; abstract;
-        function  GetBookmarkPos: TBookmark; virtual; abstract;
+        procedure SetBookmarkPos(Value: TBookmarkStr); virtual; abstract;
+        function  GetBookmarkPos: TBookmarkStr; virtual; abstract;
 
         property Dataset: TDataset read FDataset write FDataset;
         property Datalink: TtsGridDataLink read FDatalink write FDatalink;
         property BufferRows: Integer read GetBufferRows;
         property Active: Boolean read GetActive;
         property ActiveRecord: Integer read GetActiveRecord write SetActiveRecord;
-        property ActiveBookmark: TBookmark read GetActiveBookmark;
+        property ActiveBookmark: TBookmarkStr read GetActiveBookmark;
         property ActiveRecordNumber: Longint read GetActiveRecordNumber;
         property RecCount: Longint read GetRecCount;
         property RecId[BufRow: Integer]: Variant read GetRecId;
-        property Bookmark[BufRow: Integer]: TBookmark read GetBookmark;
+        property Bookmark[BufRow: Integer]: TBookmarkStr read GetBookmark;
         property RecordId[BufRow: Integer]: Variant read GetRecordId;
         property RecNo: Integer read GetRecNo write SetRecNo;
         property CanDisableControls: Boolean read GetCanDisableControls write SetCanDisableControls;
         property DatasetPosition: TtsDatasetPosition read GetDatasetPosition write SetDatasetPosition;
         property AtEnd: Boolean read GetAtEnd write SetAtEnd;
         property AtStart: Boolean read GetAtStart write SetAtStart;
-        property BookmarkPos: TBookmark read GetBookmarkPos write SetBookmarkPos;
+        property BookmarkPos: TBookmarkStr read GetBookmarkPos write SetBookmarkPos;
 
     public
         constructor Create(Grid: TtsCustomDBGrid);
@@ -1258,7 +1258,7 @@ type
      from the clone, except for records being edited. Edited values are read
      from and written to the original dataset.}
 
-    PBookmarkStr = ^TBookmark;
+    PBookmarkStr = ^TBookmarkStr;
 
     TtsScrollDataset = class(TtsGridData)
     protected
@@ -1298,8 +1298,8 @@ type
         FBeenAtEnd: Boolean;
         FRepositioned: Boolean;
         FRepositionDirection: TtsCountDirection;
-        FInsertBkm: TBookmark;
-        FActiveBookmark: TBookmark;
+        FInsertBkm: TBookmarkStr;
+        FActiveBookmark: TBookmarkStr;
         FRecordInserted: Boolean;
         FOnInsertRecord: Boolean;
         FEnableCheckRowsCount: Integer;
@@ -1330,15 +1330,15 @@ type
         function  GetRecCount: Longint; override;
         function  GetBufRecCount: Integer;
         function  GetActiveRecordBuffer: PChar;
-        function  GetActiveBookmark: TBookmark; override;
-        procedure SetActiveBookmark(Value: TBookmark);
+        function  GetActiveBookmark: TBookmarkStr; override;
+        procedure SetActiveBookmark(Value: TBookmarkStr);
         procedure GetLookupFields(BufRow: Integer);
-        procedure FetchRecordId(BufRow: Integer; Bkm: TBookmark);
+        procedure FetchRecordId(BufRow: Integer; Bkm: TBookmarkStr);
         function  GetRecord(BufRow: Integer; Direction: Integer): DbiResult;
         procedure CheckOnInsertRecord(BufRow: Integer);
-        function  CheckInsertPassed(var Err: DbiResult; FirstBkm, LastBkm: TBookmark;
+        function  CheckInsertPassed(var Err: DbiResult; FirstBkm, LastBkm: TBookmarkStr;
                                     Direction: Integer; WasOnInsert: Boolean): Boolean;
-        function  CheckInsertedRecord(PrevBkm, CurBkm: TBookmark; BufRow: Integer;
+        function  CheckInsertedRecord(PrevBkm, CurBkm: TBookmarkStr; BufRow: Integer;
                                       Direction: Integer): Boolean;
         function  GetRecords(StartRow, EndRow: Integer; Direction: Integer;
                              var Count: Longint): DbiResult;
@@ -1374,33 +1374,33 @@ type
         function  GetActiveRecordNumber: Longint; override;
         function  GetRowCountKnown: Boolean;
         function  GetBufferRows: Integer; override;
-        function  GetBufferBookmark(BufRow: Integer): TBookmark;
-        function  GetBookmark(BufRow: Integer): TBookmark; override;
+        function  GetBufferBookmark(BufRow: Integer): TBookmarkStr;
+        function  GetBookmark(BufRow: Integer): TBookmarkStr; override;
         function  GetSeqNumber(BufRow: Integer): Longint;
         function  GetRecordId(BufRow: Integer): Variant; override;
         function  FindKey(Value: string; Fieldno: Integer; CompareType: TtsComboCompareType;
-                          ParentGrid: TtsCustomDBGrid; FullCmpLen: Boolean; var Found: Boolean): TBookmark; override;
-        function  LocateValue(FromBkm, ToBkm: TBookmark; Value: string;
+                          ParentGrid: TtsCustomDBGrid; FullCmpLen: Boolean; var Found: Boolean): TBookmarkStr; override;
+        function  LocateValue(FromBkm, ToBkm: TBookmarkStr; Value: string;
                               Fieldno: Integer; CompareType: TtsComboCompareType;
-                              ParentGrid: TtsCustomDBGrid; FullCmpLen: Boolean; var Found: Boolean): TBookmark; override;
-        function  GetPreviousBkms(var FromBkm: TBookmark; ToBkm: TBookmark; BkmList: TtsSelectedList;
+                              ParentGrid: TtsCustomDBGrid; FullCmpLen: Boolean; var Found: Boolean): TBookmarkStr; override;
+        function  GetPreviousBkms(var FromBkm: TBookmarkStr; ToBkm: TBookmarkStr; BkmList: TtsSelectedList;
                                   StepSize: Integer; SelectingAll: Boolean; var Found: Boolean;
                                   var Count, Total: Longint; var Canceled: Boolean): Boolean; override;
-        function  GetNextBkms(var FromBkm: TBookmark; ToBkm: TBookmark; BkmList: TtsSelectedList;
+        function  GetNextBkms(var FromBkm: TBookmarkStr; ToBkm: TBookmarkStr; BkmList: TtsSelectedList;
                               StepSize: Integer; SelectingAll: Boolean; var Found: Boolean;
                               var Count, Total: Longint; var Canceled: Boolean): Boolean; override;
-        procedure SetBookmarkPos(Value: TBookmark); override;
-        function  GetBookmarkPos: TBookmark; override;
-        function  BookmarkValue(Fieldno: Longint; Bkm: TBookmark): Variant; override;
+        procedure SetBookmarkPos(Value: TBookmarkStr); override;
+        function  GetBookmarkPos: TBookmarkStr; override;
+        function  BookmarkValue(Fieldno: Longint; Bkm: TBookmarkStr): Variant; override;
         procedure SetTempBuffer;
         procedure RestoreBuffer;
-        function  GetBookmarkRecID(RecBkm: TBookmark; BufRownr: Integer): Variant; override;
-        function  GetBkmValueAndRecordID(Fieldno: Integer; Bkm: TBookmark; var FieldValue: Variant): Variant; override;
-        function  GetCursorBookmark(Handle: HDBICur): TBookmark;
-        function  InsertRecord(MoveDataUp: Boolean; CurBkm: TBookmark): TBookmark;
-        function  AppendRecord(CurBkm: TBookmark): TBookmark;
+        function  GetBookmarkRecID(RecBkm: TBookmarkStr; BufRownr: Integer): Variant; override;
+        function  GetBkmValueAndRecordID(Fieldno: Integer; Bkm: TBookmarkStr; var FieldValue: Variant): Variant; override;
+        function  GetCursorBookmark(Handle: HDBICur): TBookmarkStr;
+        function  InsertRecord(MoveDataUp: Boolean; CurBkm: TBookmarkStr): TBookmarkStr;
+        function  AppendRecord(CurBkm: TBookmarkStr): TBookmarkStr;
         function  AppendRecordAtEnd: Boolean;
-        procedure SetBookmark(BufRow: Integer; Bkm: TBookmark);
+        procedure SetBookmark(BufRow: Integer; Bkm: TBookmarkStr);
         procedure SetInfo(Buffer: PChar; Info: Integer);
         procedure SetBookmarkInfo(BufRow: Integer; Info: Integer);
         function  GetBookmarkInfo(BufRow: Integer): Integer;
@@ -1410,35 +1410,35 @@ type
         procedure ResizeAppend(Delta: Integer);
         function  FirstRow: Longint; override;
         function  CurrentBufRow: Integer; override;
-        function  BufferPos(Bkm: TBookmark): Integer; override;
-        function  BufferRow(Bkm: TBookmark): Integer; override;
+        function  BufferPos(Bkm: TBookmarkStr): Integer; override;
+        function  BufferRow(Bkm: TBookmarkStr): Integer; override;
         function  BufferBkmPos(BkmPos: TtsBkmPos): Integer; override;
-        function  PrevBookmark(Bkm: TBookmark; var PrevBkm: TBookmark): Boolean; override;
-        function  NextBookmark(Bkm: TBookmark; var NextBkm: TBookmark): Boolean; override;
-        function  CheckPrevBookmark(Bkm: TBookmark): TBookmark;
-        function  CheckNextBookmark(Bkm: TBookmark): TBookmark;
+        function  PrevBookmark(Bkm: TBookmarkStr; var PrevBkm: TBookmarkStr): Boolean; override;
+        function  NextBookmark(Bkm: TBookmarkStr; var NextBkm: TBookmarkStr): Boolean; override;
+        function  CheckPrevBookmark(Bkm: TBookmarkStr): TBookmarkStr;
+        function  CheckNextBookmark(Bkm: TBookmarkStr): TBookmarkStr;
         function  PrevBkmPos(const BkmPos: TtsBkmPos): TtsBkmPos; override;
         function  NextBkmPos(const BkmPos: TtsBkmPos): TtsBkmPos; override;
         function  CheckPrevBkmPos(const BkmPos: TtsBkmPos): TtsBkmPos; override;
         function  CheckNextBkmPos(const BkmPos: TtsBkmPos): TtsBkmPos; override;
-        function  FirstBookmark: TBookmark; override;
-        function  LastBookmark: TBookmark; override;
+        function  FirstBookmark: TBookmarkStr; override;
+        function  LastBookmark: TBookmarkStr; override;
         function  FirstBkmPos: TtsBkmPos; override;
         function  LastBkmPos: TtsBkmPos; override;
-        function  CompareBkm(Bkm1, Bkm2: TBookmark): Integer;
+        function  CompareBkm(Bkm1, Bkm2: TBookmarkStr): Integer;
         procedure UpdatePosition(DiffRows: Longint);
         procedure RepositionRows(DiffRows: Longint);
-        procedure EstimatePosition(OldBookmark, NewBookmark: TBookmark);
-        function  SyncToBookmark(NewBookmark, OldBookmark: TBookmark;
+        procedure EstimatePosition(OldBookmark, NewBookmark: TBookmarkStr);
+        function  SyncToBookmark(NewBookmark, OldBookmark: TBookmarkStr;
                                  TopRow: Integer; MoveToTop: Boolean; var RowMoved: Boolean): Boolean;
-        function  InBuffer(FromRow: Integer; Bkm: TBookmark): Boolean;
-        function  SetPosOnBookmark(Bkm: TBookmark; TopRow: Integer;
+        function  InBuffer(FromRow: Integer; Bkm: TBookmarkStr): Boolean;
+        function  SetPosOnBookmark(Bkm: TBookmarkStr; TopRow: Integer;
                                    MoveToTop: Boolean; var Reposition,
                                    RowMoved: Boolean; var Err: DbiResult): Boolean;
-        function  RepositionBuffer(ActiveBkm: TBookmark; TopRow: Integer;
+        function  RepositionBuffer(ActiveBkm: TBookmarkStr; TopRow: Integer;
                                    MoveToTop: Boolean; var Reposition, RowMoved: Boolean): Boolean;
-        function  ScrollBookmark: TBookmark;
-        function  DataSetBookmark: TBookmark;
+        function  ScrollBookmark: TBookmarkStr;
+        function  DataSetBookmark: TBookmarkStr;
         function  GetLocale: TLocale;
         procedure SetEnableCheckRows(Value: Boolean);
         function  GetEnableCheckRows: Boolean;
@@ -1451,7 +1451,7 @@ type
         function  PropertiesChanged: Boolean;
         function  FieldValuesEqual(Value1, Value2: Variant): Boolean;
         function  MasterChanged: Boolean;
-        function  LocateBookmark(SearchBkm: TBookmark; var StartBkm, LastBkm: TBookmark;
+        function  LocateBookmark(SearchBkm: TBookmarkStr; var StartBkm, LastBkm: TBookmarkStr;
                                  var Count: Longint): DbiResult;
 
         procedure Open;
@@ -1468,17 +1468,17 @@ type
         procedure MoveNext;
         procedure MovePrevious;
         function  MoveActive(Count: Longint; var MovedBy: Longint): Longint; override;
-        function  MoveToRecord(Bkm: TBookmark): Boolean; override;
-        procedure EndInsert(var NewBookmark: TBookmark; Canceled: Boolean;
+        function  MoveToRecord(Bkm: TBookmarkStr): Boolean; override;
+        procedure EndInsert(var NewBookmark: TBookmarkStr; Canceled: Boolean;
                             Reread: Boolean; TopRow: Integer; var RowMoved: Boolean);
-        procedure EndUpdate(var NewBookmark: TBookmark; TopRow: Integer;
+        procedure EndUpdate(var NewBookmark: TBookmarkStr; TopRow: Integer;
                             var RowMoved, BufferMoved: Boolean);
         procedure CalculatePos;
 
         property Handle: HDBICur read FHandle;
         property BufRecCount: Integer read GetBufRecCount;
         property ActiveRecordBuffer: PChar read GetActiveRecordBuffer;
-        property ActiveBookmark: TBookmark read GetActiveBookmark write SetActiveBookmark;
+        property ActiveBookmark: TBookmarkStr read GetActiveBookmark write SetActiveBookmark;
         property ReadBuffer: PChar read FReadBuffer;
         property SeqNumber[BufRow: Integer]: Longint read GetSeqNumber;
         property RecId[BufRow: Integer]: Variant read GetRecId write SetRecId;
@@ -1517,15 +1517,15 @@ type
         procedure SetActiveRecord(Value: Integer); override;
         function  GetActiveRecord: Integer; override;
         function  GetActiveRecordNumber: Longint; override;
-        function  GetActiveBookmark: TBookmark; override;
+        function  GetActiveBookmark: TBookmarkStr; override;
         function  GetRecCount: Longint; override;
         function  FirstRow: Longint; override;
         function  CurrentBufRow: Integer; override;
-        function  BufferPos(Bkm: TBookmark): Integer; override;
-        function  BufferRow(Bkm: TBookmark): Integer; override;
+        function  BufferPos(Bkm: TBookmarkStr): Integer; override;
+        function  BufferRow(Bkm: TBookmarkStr): Integer; override;
         function  BufferBkmPos(BkmPos: TtsBkmPos): Integer; override;
         function  MoveActive(Count: Longint; var MovedBy: Longint): Longint; override;
-        function  GetBookmark(BufRow: Integer): TBookmark; override;
+        function  GetBookmark(BufRow: Integer): TBookmarkStr; override;
         function  GetRecId(BufRow: Integer): Variant; override;
         function  GetRecordId(BufRow: Integer): Variant; override;
         procedure ClearIdBuffers(FromRow, ToRow: Integer; Reset: Boolean);
@@ -1533,19 +1533,19 @@ type
         procedure MoveIdBuffers(Distance: Integer);
         function  ResizeBuffer(NewSize: Integer; var Redraw: Boolean): Boolean; override;
         function  OnLastRecord: Boolean; override;
-        function  NextBufferBkm(Bkm: TBookmark; var NextBkm: TBookmark): Boolean;
-        function  PrevBufferBkm(Bkm: TBookmark; var PrevBkm: TBookmark): Boolean;
-        function  SetToBookmark(Bkm: TBookmark; RaiseError: Boolean): Boolean;
-        function  GetNextBookmark(Bkm: TBookmark; var NextBkm: TBookmark): Boolean;
-        function  NextBookmark(Bkm: TBookmark; var NextBkm: TBookmark): Boolean; override;
-        function  GetPrevBookmark(Bkm: TBookmark; var PrevBkm: TBookmark): Boolean;
-        function  PrevBookmark(Bkm: TBookmark; var PrevBkm: TBookmark): Boolean; override;
+        function  NextBufferBkm(Bkm: TBookmarkStr; var NextBkm: TBookmarkStr): Boolean;
+        function  PrevBufferBkm(Bkm: TBookmarkStr; var PrevBkm: TBookmarkStr): Boolean;
+        function  SetToBookmark(Bkm: TBookmarkStr; RaiseError: Boolean): Boolean;
+        function  GetNextBookmark(Bkm: TBookmarkStr; var NextBkm: TBookmarkStr): Boolean;
+        function  NextBookmark(Bkm: TBookmarkStr; var NextBkm: TBookmarkStr): Boolean; override;
+        function  GetPrevBookmark(Bkm: TBookmarkStr; var PrevBkm: TBookmarkStr): Boolean;
+        function  PrevBookmark(Bkm: TBookmarkStr; var PrevBkm: TBookmarkStr): Boolean; override;
         function  PrevBkmPos(const BkmPos: TtsBkmPos): TtsBkmPos; override;
         function  NextBkmPos(const BkmPos: TtsBkmPos): TtsBkmPos; override;
         function  CheckPrevBkmPos(const BkmPos: TtsBkmPos): TtsBkmPos; override;
         function  CheckNextBkmPos(const BkmPos: TtsBkmPos): TtsBkmPos; override;
-        function  FirstBookmark: TBookmark; override;
-        function  LastBookmark: TBookmark; override;
+        function  FirstBookmark: TBookmarkStr; override;
+        function  LastBookmark: TBookmarkStr; override;
         function  BufferPositionChanged(Value: TtsDatasetPosition): Boolean; override;
         function  GetDatasetPosition: TtsDatasetPosition; override;
         procedure SetDatasetPosition(Value: TtsDatasetPosition); override;
@@ -1554,31 +1554,31 @@ type
         procedure SetAtEnd(Value: Boolean); override;
         function  GetAtStart: Boolean; override;
         procedure SetAtStart(Value: Boolean); override;
-        function  MoveToRecord(Bkm: TBookmark): Boolean; override;
+        function  MoveToRecord(Bkm: TBookmarkStr): Boolean; override;
         procedure RereadBuffer(TopRow: Longint; ForceRead: Boolean); override;
         procedure SetProperties(Reread: Boolean); override;
-        function  BookmarkValue(Fieldno: Longint; Bkm: TBookmark): Variant; override;
-        function  GetBookmarkRecID(RecBkm: TBookmark; BufRownr: Integer): Variant; override;
-        function  GetBkmValueAndRecordID(Fieldno: Integer; Bkm: TBookmark; var FieldValue: Variant): Variant; override;
+        function  BookmarkValue(Fieldno: Longint; Bkm: TBookmarkStr): Variant; override;
+        function  GetBookmarkRecID(RecBkm: TBookmarkStr; BufRownr: Integer): Variant; override;
+        function  GetBkmValueAndRecordID(Fieldno: Integer; Bkm: TBookmarkStr; var FieldValue: Variant): Variant; override;
         function  DoRecCount(ReCount: Boolean): Longint; override;
-        function  KeyEqual(KeyBkm: TBookmark; SearchValue: string; Fieldno: Integer;
+        function  KeyEqual(KeyBkm: TBookmarkStr; SearchValue: string; Fieldno: Integer;
                            CompareType: TtsComboCompareType; ParentGrid: TtsCustomDBGrid;
                            FullCmpLen: Boolean): Boolean;
         function  CanFindNearest: Boolean; virtual;
         procedure FindNearest(Value: string); virtual;
         function  FindKey(Value: string; Fieldno: Integer; CompareType: TtsComboCompareType;
-                          ParentGrid: TtsCustomDBGrid; FullCmpLen: Boolean; var Found: Boolean): TBookmark; override;
-        function  LocateValue(FromBkm, ToBkm: TBookmark; Value: string; Fieldno: Integer;
+                          ParentGrid: TtsCustomDBGrid; FullCmpLen: Boolean; var Found: Boolean): TBookmarkStr; override;
+        function  LocateValue(FromBkm, ToBkm: TBookmarkStr; Value: string; Fieldno: Integer;
                               CompareType: TtsComboCompareType; ParentGrid: TtsCustomDBGrid;
-                              FullCmpLen: Boolean; var Found: Boolean): TBookmark; override;
-        function  GetPreviousBkms(var FromBkm: TBookmark; ToBkm: TBookmark; BkmList: TtsSelectedList;
+                              FullCmpLen: Boolean; var Found: Boolean): TBookmarkStr; override;
+        function  GetPreviousBkms(var FromBkm: TBookmarkStr; ToBkm: TBookmarkStr; BkmList: TtsSelectedList;
                                   StepSize: Integer; SelectingAll: Boolean; var Found: Boolean;
                                   var Count, Total: Longint; var Canceled: Boolean): Boolean; override;
-        function  GetNextBkms(var FromBkm: TBookmark; ToBkm: TBookmark; BkmList: TtsSelectedList;
+        function  GetNextBkms(var FromBkm: TBookmarkStr; ToBkm: TBookmarkStr; BkmList: TtsSelectedList;
                               StepSize: Integer; SelectingAll: Boolean; var Found: Boolean;
                               var Count, Total: Longint; var Canceled: Boolean): Boolean; override;
-        procedure SetBookmarkPos(Value: TBookmark); override;
-        function  GetBookmarkPos: TBookmark; override;
+        procedure SetBookmarkPos(Value: TBookmarkStr); override;
+        function  GetBookmarkPos: TBookmarkStr; override;
 
     public
         constructor Create(Grid: TtsCustomDBGrid);
@@ -1606,9 +1606,9 @@ type
         FStandardDataset: TtsStandardDataset;
         FScrollDataset: TtsScrollDataset;
         FLinkActive: Boolean;
-        FCurBookmark: TBookmark;
-        FOldBookmark: TBookmark;
-        FEditBookmark: TBookmark;
+        FCurBookmark: TBookmarkStr;
+        FOldBookmark: TBookmarkStr;
+        FEditBookmark: TBookmarkStr;
         FCanSetCurrentRec: Integer;
         FCanSetCurrentRow: Integer;
         FCanSynchronize: Integer;
@@ -1636,12 +1636,12 @@ type
         FDBSelectedCells: TtsDBRect;
         FDBRowPropSet: TtsDBRowPropSet;
         FDBCellPropSet: TtsDBCellPropSet;
-        FLastAddedBookmark: TBookmark;
+        FLastAddedBookmark: TBookmarkStr;
         FLastAddedBkmPos: TtsBkmPos;
-        FSelectionStart: TBookmark;
+        FSelectionStart: TBookmarkStr;
         FSavedSelectedRows: TBits;
         FLoadFirstRow: Boolean;
-        FLastRowLoaded: TBookmark;
+        FLastRowLoaded: TBookmarkStr;
         FLastRownrLoaded: Longint;
         FFieldList: TtsFieldList;
         FIgnoreDatasetScrolled: Integer;
@@ -1782,12 +1782,12 @@ type
         procedure SetCurrentPosition(DisplayCol, DisplayRow: Longint;
                                      InvalidateInsertRow, InvalidateOldCell: Boolean); override;
         procedure SetCurrentRowSelect(DisplayRow: Longint; Draw: Boolean);
-        procedure SetCurrentRec(Bookmark: TBookmark; BufRownr: Integer);
+        procedure SetCurrentRec(Bookmark: TBookmarkStr; BufRownr: Integer);
         function  CurrentRowChanged(DisplayRow: Longint): Boolean;
         function  CheckSetCurrent(DatasetPos: TtsDatasetPosition; DisplayRow: Longint): Boolean;
-        procedure PositionRec(DisplayCol: Longint; Bookmark: TBookmark;
+        procedure PositionRec(DisplayCol: Longint; Bookmark: TBookmarkStr;
                               Synchronize: Boolean);
-        procedure PositionCurrentRec(DisplayCol: Longint; Bookmark: TBookmark;
+        procedure PositionCurrentRec(DisplayCol: Longint; Bookmark: TBookmarkStr;
                                      Synchronize, Position: Boolean);
         procedure SetCurrentRow(PrevRecnr, Recnr: Integer);
         function  CheckClearBuffer(Col: TtsDBCol): Boolean;
@@ -1796,14 +1796,14 @@ type
         procedure DeleteAllRowSelection; override;
         procedure SetScrollPosition(DisplayRow: Longint);
         function  CompareRowPos(DisplayRow: Longint): Integer; override;
-        procedure GetFirstLastBkm(First, Last: Longint; var FirstBkm, LastBkm: TBookmark );
+        procedure GetFirstLastBkm(First, Last: Longint; var FirstBkm, LastBkm: TBookmarkStr );
         procedure GetFirstLastRow(var First, Last: Longint);
         procedure SelectCurrentRow(DisplayRow: Longint); override;
         procedure SaveDatasetPosition(var DatasetPos: TtsDatasetPosition);
         procedure RestoreDatasetPosition(DatasetPos: TtsDatasetPosition; Reset: Boolean);
         procedure SelectLargerRows(DisplayRow: Longint); override;
         procedure SelectSmallerRows(DisplayRow: Longint); override;
-        procedure RowSelectScroll(CurrentBkm: TBookmark; Count: Integer);
+        procedure RowSelectScroll(CurrentBkm: TBookmarkStr; Count: Integer);
         procedure AddScrollingUp;
         procedure DeleteScrollingUp;
         procedure AddTopRowScrollingUp;
@@ -1821,7 +1821,7 @@ type
         procedure DoScanRecord(ScanAll: Boolean; State: TtsScanState; var Count, Total: Longint; var Canceled: Boolean);
         procedure GetBufferList(StartRow, DisplayRow: Longint; List: TtsSelectedList;
                                 SelectingAll: Boolean; var Count, Total: Longint; var Canceled: Boolean);
-        function  GetDatasetList(DisplayRow: Integer; FromBkm, ToBkm: TBookmark;
+        function  GetDatasetList(DisplayRow: Integer; FromBkm, ToBkm: TBookmarkStr;
                                  Direction: Integer; SelectingAll: Boolean; var List: TtsSelectedList;
                                  var Canceled: Boolean): Integer;
         function  GetSelectedList(StartRow, DisplayRow: Longint; var List: TtsSelectedList;
@@ -1832,7 +1832,7 @@ type
         procedure SelectRowShiftCtrlMouseDown(DisplayRow: Longint; var Canceled: Boolean); override;
         procedure SelectSingleRow(DisplayRow: Longint; Invalidate: Boolean); override;
         procedure SetNewSelectedRow(DisplayRow: Longint); override;
-        procedure SelectSingleDBRow(DataRow: TBookmark; Invalidate: Boolean);
+        procedure SelectSingleDBRow(DataRow: TBookmarkStr; Invalidate: Boolean);
         procedure CheckRowSelection(Invalidate: Boolean); override;
         procedure SetLastAddedRow(DisplayRow: Longint); override;
         procedure ResetScrollPosition;
@@ -1840,7 +1840,7 @@ type
         procedure SetSelectionStartRow(DisplayRow: Longint); override;
         function  SelectionStartRownr: Integer; override;
         procedure CheckSetCurrentRow(DisplayRow: Longint); override;
-        function  GetSelectionStart: TBookmark;
+        function  GetSelectionStart: TBookmarkStr;
         procedure EndRowSelecting(Select: Boolean); override;
 
         {Row change procedures}
@@ -2043,7 +2043,7 @@ type
         procedure SetCanSynchronize(Value: Boolean);
         function  GetCanSynchronize: Boolean;
         procedure CheckBoundProperties;
-        function  IsSameRow(Rownr1, Rownr2: Longint; Bkm1, Bkm2: TBookmark;
+        function  IsSameRow(Rownr1, Rownr2: Longint; Bkm1, Bkm2: TBookmarkStr;
                             CheckRownr: Boolean): Boolean;
         procedure SetFieldValue(Col: TtsDBCol; ControlType: TtsControlType; const Value: Variant);
         procedure GetFieldValue(Col: TtsDBCol; Rownr: Longint; CheckRownr: Boolean; ControlType: TtsControlType; var Value: Variant);
@@ -2058,7 +2058,7 @@ type
         procedure VerifyEditMode;
         procedure VerifyRowChanged;
         function  CompareBkmPos(var BkmPos1, BkmPos2: TtsBkmPos): Integer;
-        function  BkmEqual(var Bkm1: TBookmark; Bkm2: TBookmark): Boolean;
+        function  BkmEqual(var Bkm1: TBookmarkStr; Bkm2: TBookmarkStr): Boolean;
         procedure SyncData(Reposition: Boolean);
         procedure ComponentRemoved(AComponent: TComponent);
         procedure ComponentInserted(AComponent: TComponent);
@@ -2086,13 +2086,13 @@ type
         procedure ActivateComboRollUp(DataCol, DataRow: Longint); override;
         //procedure GetComboValue(ValueCol, DataColUp, DataRowUp: Longint; var Value: Variant); override;
         //procedure SetComboValue(Value: Variant); override;
-        //procedure SetDBComboRow(SearchBkm: TBookmark);
-        //function  FindDBComboRow(FromBkm, ToBkm: TBookmark; Value: string;
-        //                         FullCmpLen: Boolean; var Found: Boolean): TBookmark;
+        //procedure SetDBComboRow(SearchBkm: TBookmarkStr);
+        //function  FindDBComboRow(FromBkm, ToBkm: TBookmarkStr; Value: string;
+        //                         FullCmpLen: Boolean; var Found: Boolean): TBookmarkStr;
         //procedure PositionComboRow; override;
-        //function  FindDBNextComboRow(SearchValue: string; var Found: Boolean): TBookmark;
-        //function  FindDBComboFirstChar(Key: Char; var Found: Boolean): TBookmark;
-        //function  FindDBComboString(Key: Char; var Found: Boolean): TBookmark;
+        //function  FindDBNextComboRow(SearchValue: string; var Found: Boolean): TBookmarkStr;
+        //function  FindDBComboFirstChar(Key: Char; var Found: Boolean): TBookmarkStr;
+        //function  FindDBComboString(Key: Char; var Found: Boolean): TBookmarkStr;
         //function  PositionDropDownList(Key: Char): Variant; //override;
         //function  PositionAutoFill(CellExit: Boolean): Boolean; override;
         procedure CheckResetCellCombo(DataCol: Longint; DataRow: Variant);
@@ -2448,7 +2448,7 @@ type
         property ActiveRecord: Integer read GetActiveRecord write SetActiveRecord;
         property UseStandardDataset: Boolean read FUseStandardDataset write FUseStandardDataset;
         property IgnoreDatasetScrolled: Boolean read GetIgnoreDatasetScrolled write SetIgnoreDatasetScrolled;
-        property SelectionStart: TBookmark read GetSelectionStart write FSelectionStart;
+        property SelectionStart: TBookmarkStr read GetSelectionStart write FSelectionStart;
         property ActiveCell[DataCol: Longint; DataRow: Variant]: Variant read GetActiveCellValue;
         property CanGetCurrentCell: Boolean read GetCanGetCurrentCell write SetCanGetCurrentCell;
         property CurrentRecordId: Variant read GetCurrentRecordId;
@@ -2625,7 +2625,7 @@ type
         procedure CalculateRows;
         function  CellSelected(DisplayCol: Longint; DisplayRow: Variant): Boolean;
         procedure ChangeSelection(FromRow, ToRow: Variant);
-        function  CompareBkm(Bkm1, Bkm2: TBookmark): Integer;
+        function  CompareBkm(Bkm1, Bkm2: TBookmarkStr): Integer;
         procedure DeleteCols(FromDataCol, ToDataCol: Longint); override;
         procedure DeleteRows(FromDataRow, ToDataRow: Longint); override;
         procedure DeleteSelectedCols; override;
@@ -3412,24 +3412,16 @@ type
         ftDateTime: (DateTime: TDateTime);
     end;
 
-function DatasetCompBkm(Dataset: TDataset; Bkm1, Bkm2: TBookmark; CompareType: TtsBookmarkCompareType): Integer;
+function DatasetCompBkm(Dataset: TDataset; Bkm1, Bkm2: TBookmarkStr; CompareType: TtsBookmarkCompareType): Integer;
 begin
     if CompareType = bctAsString then
     begin
-      if (Bkm1 = nil) and (Bkm2 = nil) then
-        Result := 0
-      else if (Bkm1 = nil) then
-        Result := -1
-      else if (Bkm2 = nil) then
-        Result := 1
-      else
-       Result := 0;
-        {if Bkm1 < Bkm2 then
+        if Bkm1 < Bkm2 then
             Result := -1
         else if Bkm1 > Bkm2 then
             Result := 1
         else
-            Result := 0;}
+            Result := 0;
     end
     else if (Bkm1 = Bkm2) then
         Result := 0
@@ -3440,8 +3432,7 @@ begin
     else
     begin
 {$IFDEF TSVER_V3}
-        //Result := Dataset.CompareBookmarks(PChar(Bkm1), PChar(Bkm2));
-        Result := Dataset.CompareBookmarks(TBookmark(Bkm1), TBookmark(Bkm2));
+        Result := Dataset.CompareBookmarks(PChar(Bkm1), PChar(Bkm2));
 {$ELSE}
         Result := 0;
         DbiCompareBookMarks(Dataset.Handle, PChar(Bkm1), PChar(Bkm2), Result);
@@ -3450,7 +3441,7 @@ begin
     end;
 end;
 
-function CurBkmPos(Bkm: TBookmark): TtsBkmPos;
+function CurBkmPos(Bkm: TBookmarkStr): TtsBkmPos;
 begin
     Result.Bkm := Bkm;
     Result.Offset := bpoCurrent;
@@ -3564,7 +3555,7 @@ begin
     DatasetField.Size := Value;
 end;
 
-{procedure TtsDBField.ClearLookup;
+procedure TtsDBField.ClearLookup;
 var
     RecBuf: PChar;
 
@@ -3576,28 +3567,6 @@ begin
         RecBuf := ActiveRecordBuffer;
         Boolean(RecBuf[FLookupStart + FLookupOffset]) := False;
     end;
-end;}
-
-procedure TtsDBField.ClearLookup;
-var
-  pBoolFlag: PBoolean;
-  RecBuf: PByte;
-begin
-  if not Lookup then Exit;
-
-  with FGrid.FScrollDataset do
-  begin
-    // Obtém o buffer do registro ativo de forma segura
-    RecBuf := PByte(ActiveRecordBuffer);
-    if not Assigned(RecBuf) then Exit;
-
-    // Calcula a posição do flag booleano de forma explícita
-    RecBuf := RecBuf + FLookupStart + FLookupOffset;
-
-    // Converte para ponteiro booleano e desativa o flag
-    pBoolFlag := PBoolean(RecBuf);
-    pBoolFlag^ := False;
-  end;
 end;
 
 function TtsDBField.GetLookupData(Buffer: Pointer): Boolean;
@@ -3617,7 +3586,7 @@ begin
     end;
 end;
 
-{procedure TtsDBField.SetLookupData(Buffer: Pointer);
+procedure TtsDBField.SetLookupData(Buffer: Pointer);
 var
     RecBuf: PChar;
 begin
@@ -3625,20 +3594,6 @@ begin
     begin
         RecBuf := ActiveRecordBuffer;
         Boolean(RecBuf[FLookupStart + FLookupOffset]) := True;
-        Move(Buffer^, RecBuf[FLookupStart + FLookupOffset + 1], DataSize);
-    end;
-end;}
-
-procedure TtsDBField.SetLookupData(Buffer: Pointer);
-var
-    RecBuf: PByte; // Alterado de PChar para PByte para manipulação segura de bytes
-begin
-    with FGrid.FScrollDataset do
-    begin
-        RecBuf := PByte(ActiveRecordBuffer); // Conversão explícita para PByte
-        // Ajuste na atribuição do flag booleano
-        RecBuf[FLookupStart + FLookupOffset] := 1; // Usa 1 para True (equivalente binário)
-        // Ajuste no cálculo do offset para cópia de dados
         Move(Buffer^, RecBuf[FLookupStart + FLookupOffset + 1], DataSize);
     end;
 end;
@@ -3956,7 +3911,7 @@ end;
 
 {TtsDBStringField}
 
-{function TtsDBStringField.GetValue(var Value: string): Boolean;
+function TtsDBStringField.GetValue(var Value: string): Boolean;
 var
     Buffer: PChar;
 begin
@@ -3969,42 +3924,8 @@ begin
         if GetData(Buffer) then
         begin
             Result := True;
-            if Transliterate then
-             NativeToAnsi(Locale, Buffer, Value)
-            else
-             Value := Buffer;
-        end;
-    end;
-end;}
-
-function TtsDBStringField.GetValue(var Value: string): Boolean;
-var
-    Buffer: PChar;
-    AnsiValue: AnsiString; // Usado para conversão, se necessário
-begin
-    Result := False;
-    Value := '';
-
-    if not Assigned(FGrid) or not Assigned(FGrid.FScrollDataset) then
-        Exit;
-
-    with FGrid.FScrollDataset do
-    begin
-        Buffer := ReadBuffer;
-        if Assigned(Buffer) then
-            FillChar(Buffer^, FBufRowSize, 0);
-
-        if GetData(Buffer) then
-        begin
-            Result := True;
-            if Transliterate then
-            begin
-                // Converte o buffer (PChar) para AnsiString e depois para UnicodeString (string)
-                AnsiValue := AnsiString(Buffer); // Converte PChar para AnsiString
-                Value := string(AnsiValue);      // Converte AnsiString para UnicodeString
-            end
-            else
-                Value := string(Buffer); // Converte diretamente PChar para UnicodeString
+            if Transliterate then NativeToAnsi(Locale, Buffer, Value)
+                             else Value := Buffer;
         end;
     end;
 end;
@@ -4093,7 +4014,7 @@ begin
     SetLookupData(Buffer);
 end;
 
-{function TtsDBStringField.SetField(RecBuf: PChar; Value: string): Boolean;
+function TtsDBStringField.SetField(RecBuf: PChar; Value: string): Boolean;
 var
     Buffer: array[0..dsMaxStringSize] of Char;
 begin
@@ -4101,28 +4022,6 @@ begin
         then AnsiToNative(FGrid.FScrollDataset.Locale, Value, Buffer, Size)
         else StrLCopy(Buffer, PChar(Value), Size);
 
-    DbiPutField(FGrid.FScrollDataset.FHandle, FieldNo, RecBuf, @Buffer);
-    Result := True;
-end;}
-
-function TtsDBStringField.SetField(RecBuf: PChar; Value: string): Boolean;
-var
-    Buffer: array[0..dsMaxStringSize] of Char;
-    AnsiValue: AnsiString; // Usado para conversão, se necessário
-begin
-    if Transliterate then
-    begin
-        // Converte a string Unicode (Value) para AnsiString e depois para PChar
-        AnsiValue := AnsiString(Value); // Converte UnicodeString para AnsiString
-        StrPLCopy(Buffer, string(AnsiValue), Size); // Copia AnsiString para Buffer como PChar
-    end
-    else
-    begin
-        // Copia diretamente a string Unicode (Value) para o Buffer como PChar
-        StrPLCopy(Buffer, Value, Size);
-    end;
-
-    // Chama a função DbiPutField para atualizar o campo
     DbiPutField(FGrid.FScrollDataset.FHandle, FieldNo, RecBuf, @Buffer);
     Result := True;
 end;
@@ -4323,7 +4222,7 @@ begin
             begin
                 if DisplayText then Format := ffCurrency
                                 else Format := ffFixed;
-                Digits := FormatSettings.CurrencyDecimals;
+                Digits := CurrencyDecimals;
             end
             else
             begin
@@ -4438,7 +4337,7 @@ begin
                 begin
                     if DisplayText then Format := ffCurrency
                                    else Format := ffFixed;
-                    Digits := FormatSettings.CurrencyDecimals;
+                    Digits := CurrencyDecimals;
                 end
                 else
                 begin
@@ -4718,8 +4617,8 @@ begin
         else
         begin
             case DataType of
-                ftDate: Fmt := FormatSettings.ShortDateFormat;
-                ftTime: Fmt := FormatSettings.ShortDateFormat;
+                ftDate: Fmt := ShortDateFormat;
+                ftTime: Fmt := LongTimeFormat;
             end;
         end;
 
@@ -6047,7 +5946,7 @@ begin
     FIndexFieldNames := '';
 end;
 
-function TtsGridData.CompareBkm(Bkm1: TBookmark; Bkm2: TBookmark): Integer;
+function TtsGridData.CompareBkm(Bkm1: TBookmarkStr; Bkm2: TBookmarkStr): Integer;
 begin
     Result := DatasetCompBkm(FGrid.Datalink.Dataset, Bkm1, Bkm2, FGrid.BookmarkCompareType);
 end;
@@ -6207,7 +6106,7 @@ begin
     end;
 end;
 
-function TtsGridData.BkmPosBookmark(const BkmPos: TtsBkmPos; var Bkm: TBookmark): Boolean;
+function TtsGridData.BkmPosBookmark(const BkmPos: TtsBkmPos; var Bkm: TBookmarkStr): Boolean;
 begin
     Result := True;
     Bkm := BkmPos.Bkm;
@@ -6221,7 +6120,7 @@ end;
 
 function TtsGridData.ActualBkmPos(BkmPos: TtsBkmPos): TtsBkmPos;
 var
-    Bkm: TBookmark;
+    Bkm: TBookmarkStr;
 begin
     Result := BkmPos;
     case BkmPos.Offset of
@@ -6636,7 +6535,7 @@ begin
     FBufRecSize := FCursorProps.IRecBufSize;
     FBufBookmarkSize := FCursorProps.IBookmarkSize;
     FBufBkmInfoSize := 1;
-    FBufPBkmSize := SizeOf(TBookmark);
+    FBufPBkmSize := SizeOf(TBookmarkStr);
     FPBkmStart := FBufRecSize + FBufBookmarkSize + FBufBkmInfoSize;
     FBufRecIDSize := SizeOf(Variant);
     FRecIDStart := FPBkmStart + FBufPBkmSize;
@@ -6776,12 +6675,12 @@ begin
         Result := RecordBuffer(FActiveBufIndex);
 end;
 
-function TtsScrollDataset.GetActiveBookmark: TBookmark;
+function TtsScrollDataset.GetActiveBookmark: TBookmarkStr;
 begin
     Result := FActiveBookmark;
 end;
 
-procedure TtsScrollDataset.SetActiveBookmark(Value: TBookmark);
+procedure TtsScrollDataset.SetActiveBookmark(Value: TBookmarkStr);
 begin
     FActiveBookmark := Value;
 end;
@@ -6799,7 +6698,7 @@ begin
     end;
 end;
 
-procedure TtsScrollDataset.FetchRecordId(BufRow: Integer; Bkm: TBookmark);
+procedure TtsScrollDataset.FetchRecordId(BufRow: Integer; Bkm: TBookmarkStr);
 var
     Id: Variant;
 begin
@@ -6810,12 +6709,12 @@ begin
     RecId[BufRow] := Id;
 end;
 
-{function TtsScrollDataset.GetRecord(BufRow: Integer; Direction: Integer): DbiResult;
+function TtsScrollDataset.GetRecord(BufRow: Integer; Direction: Integer): DbiResult;
 var
     Buffer: PChar;
     Info: RecProps;
     OldActive: Integer;
-    OldActiveBkm: TBookmark;
+    OldActiveBkm: TBookmarkStr;
     PBkm: PBookmarkStr;
 begin
     Buffer := RecordBuffer(BufRow);
@@ -6830,7 +6729,7 @@ begin
     begin
         with PRecInfo(Buffer + FRecInfoStart)^ do
         begin
-            //UpdateStatus := TUpdateStatus(Info.iRecStatus);
+            UpdateStatus := TUpdateStatus(Info.iRecStatus);
             case FRecNoStatus of
                 rnParadox: RecordNumber := Info.iSeqNum;
                 rnDBase: RecordNumber := Info.iPhyRecNum;
@@ -6856,72 +6755,9 @@ begin
             ActiveBookmark := OldActiveBkm;
         end;
     end;
-end;}
-
-function TtsScrollDataset.GetRecord(BufRow: Integer; Direction: Integer): DbiResult;
-var
-  Buffer: PChar;
-  Info: RecProps;
-  OldActive: Integer;
-  OldActiveBkm: TBookmark;
-  PBkm: TArray<Byte>; // Bookmark agora tratado como array de bytes
-begin
-  // Obtém o buffer do registro
-  Buffer := RecordBuffer(BufRow);
-
-  // Determina a direção da leitura do registro
-  case Direction of
-    1: Result := DbiGetNextRecord(FHandle, dbiNoLock, Buffer, @Info); // Próximo registro
-   -1: Result := DbiGetPriorRecord(FHandle, dbiNoLock, Buffer, @Info); // Registro anterior
-    0: Result := DbiGetRecord(FHandle, dbiNoLock, Buffer, @Info); // Registro atual
-  else
-    raise Exception.Create('Direção inválida para navegação nos registros.');
-  end;
-
-  // Se o registro foi lido com sucesso
-  if Result = DbiErr_None then
-  begin
-    // Atualiza informações no buffer
-    with PRecInfo(Buffer + FRecInfoStart)^ do
-    begin
-      case FRecNoStatus of
-        rnParadox: RecordNumber := Info.iSeqNum;
-        rnDBase: RecordNumber := Info.iPhyRecNum;
-      else
-        RecordNumber := -1; // Caso desconhecido
-      end;
-    end;
-
-    // Gerencia o Bookmark
-    if DbiGetBookMark(FHandle, Buffer + FBufRecSize) = DbiErr_None then
-    begin
-      SetLength(PBkm, FBufBookmarkSize); // Ajusta o tamanho do array de bytes
-      Move((Buffer + FBufRecSize)^, PBkm[0], FBufBookmarkSize); // Copia o conteúdo do buffer para o array
-      // Aqui, PBkm contém o bookmark como array de bytes
-    end;
-
-    // Define informações adicionais no buffer
-    SetInfo(Buffer, bkmNormal);
-
-    // Salva o estado atual
-    OldActive := FActiveBufIndex;
-    OldActiveBkm := ActiveBookmark;
-    FActiveBufIndex := BufRow;
-    ActiveBookmark := GetBufferBookmark(BufRow);
-
-    try
-      // Atualiza campos de busca e ID do registro
-      GetLookupFields(BufRow);
-      FetchRecordId(BufRow, ActiveBookmark);
-    finally
-      // Restaura o estado anterior em caso de falha
-      FActiveBufIndex := OldActive;
-      ActiveBookmark := OldActiveBkm;
-    end;
-  end;
 end;
 
-function TtsScrollDataset.CheckInsertedRecord(PrevBkm, CurBkm: TBookmark; BufRow: Integer;
+function TtsScrollDataset.CheckInsertedRecord(PrevBkm, CurBkm: TBookmarkStr; BufRow: Integer;
                                               Direction: Integer): Boolean;
 var
     CompPrev, CompNext: Integer;
@@ -6963,8 +6799,8 @@ function TtsScrollDataset.GetRecords(StartRow, EndRow: Integer; Direction: Integ
 var
     Err: DbiResult;
     BufRow: Integer;
-    PrevBkm: TBookmark;
-    CurBkm: TBookmark;
+    PrevBkm: TBookmarkStr;
+    CurBkm: TBookmarkStr;
 begin
     Count := 0;
     Result := DbiErr_None;
@@ -7012,12 +6848,12 @@ begin
     Result := Err;
 end;
 
-{function TtsScrollDataset.SetToRecord(BufRow: Integer): DbiResult;
+function TtsScrollDataset.SetToRecord(BufRow: Integer): DbiResult;
 var
     I: Integer;
     Count: Integer;
     Direction: Integer;
-    Bkm: TBookmark;
+    Bkm: TBookmarkStr;
 begin
     if GetBookmarkInfo(BufRow) = bkmInserted
         then Bkm := FInsertBkm
@@ -7033,40 +6869,6 @@ begin
     Direction := 1;
     if Count < 0 then Direction := -1;
     for I := 1 to Abs(Count) do CheckCountPosition(DbiErr_None, Direction);
-end;}
-
-function TtsScrollDataset.SetToRecord(BufRow: Integer): DbiResult;
-var
-  I, Count, Direction: Integer;
-  Bkm: TBookmark;
-begin
-  // Obtém o bookmark correspondente ao registro
-  if GetBookmarkInfo(BufRow) = bkmInserted then
-    Bkm := FInsertBkm
-  else
-    Bkm := Bookmark[BufRow];
-
-  // Posiciona no registro apropriado usando o bookmark
-  if (BufRow > 0) or (Bkm <> nil) then
-    Result := DbiSetToBookMark(FHandle, PChar(Bkm))
-  else
-    Result := DbiSetToBegin(FHandle);
-
-  // Calcula a diferença entre a linha atual e o cursor
-  Count := (FBufFirstRow + BufRow - 1) - FCursorRow;
-  FCursorRow := FBufFirstRow + BufRow - 1;
-
-  // Verifica e ajusta registros inseridos, se necessário
-  CheckOnInsertRecord(BufRow);
-
-  // Determina a direção da navegação
-  Direction := 1;
-  if Count < 0 then
-    Direction := -1;
-
-  // Navega no número de registros necessários
-  for I := 1 to Abs(Count) do
-    CheckCountPosition(DbiErr_None, Direction);
 end;
 
 procedure TtsScrollDataset.CheckOnInsertRecord(BufRow: Integer);
@@ -7201,7 +7003,7 @@ function TtsScrollDataset.MoveSequenced(Count: Longint; var MoveCount: Longint;
 var
     SeqNo, NewSeqNo: Longint;
     EndSeqNo: Longint;
-    OldBkm: TBookmark;
+    OldBkm: TBookmarkStr;
     Direction: Integer;
     Offset: Integer;
 begin
@@ -7287,7 +7089,7 @@ var
     I: Integer;
     OldErr, Err: DbiResult;
     Direction: Integer;
-    StartBkm: TBookmark;
+    StartBkm: TBookmarkStr;
     WasOnInsert: Boolean;
     Moved: Boolean;
 begin
@@ -7341,7 +7143,7 @@ begin
     Result := Err;
 end;
 
-function TtsScrollDataset.CheckInsertPassed(var Err: DbiResult; FirstBkm, LastBkm: TBookmark;
+function TtsScrollDataset.CheckInsertPassed(var Err: DbiResult; FirstBkm, LastBkm: TBookmarkStr;
                                             Direction: Integer; WasOnInsert: Boolean): Boolean;
 begin
     Result := False;
@@ -7860,9 +7662,9 @@ begin
     Result := BufferRow(FGrid.FCurBookmark);
 end;
 
-function TtsScrollDataset.BufferPos(Bkm: TBookmark): Integer;
+function TtsScrollDataset.BufferPos(Bkm: TBookmarkStr): Integer;
 var
-    CurBkm: TBookmark;
+    CurBkm: TBookmarkStr;
     CompRes: Integer;
 begin
     Result := 0;
@@ -7889,7 +7691,7 @@ begin
     end;
 end;
 
-function TtsScrollDataset.BufferRow(Bkm: TBookmark): Integer;
+function TtsScrollDataset.BufferRow(Bkm: TBookmarkStr): Integer;
 begin
     Result := BufferPos(Bkm);
     if Result > BufferRows then Result := 0;
@@ -7900,9 +7702,9 @@ begin
     Result := BufferPos(ActualBkmPos(BkmPos).Bkm);
 end;
 
-function TtsScrollDataset.PrevBookmark(Bkm: TBookmark; var PrevBkm: TBookmark): Boolean;
+function TtsScrollDataset.PrevBookmark(Bkm: TBookmarkStr; var PrevBkm: TBookmarkStr): Boolean;
 var
-    OldBkm: TBookmark;
+    OldBkm: TBookmarkStr;
 begin
     OldBkm := ScrollBookmark;
     try
@@ -7915,9 +7717,9 @@ begin
     end;
 end;
 
-function TtsScrollDataset.NextBookmark(Bkm: TBookmark; var NextBkm: TBookmark): Boolean;
+function TtsScrollDataset.NextBookmark(Bkm: TBookmarkStr; var NextBkm: TBookmarkStr): Boolean;
 var
-    OldBkm: TBookmark;
+    OldBkm: TBookmarkStr;
 begin
     OldBkm := ScrollBookmark;
     try
@@ -7930,10 +7732,10 @@ begin
     end;
 end;
 
-function TtsScrollDataset.CheckPrevBookmark(Bkm: TBookmark): TBookmark;
+function TtsScrollDataset.CheckPrevBookmark(Bkm: TBookmarkStr): TBookmarkStr;
 var
     Err: DbiResult;
-    OldBkm: TBookmark;
+    OldBkm: TBookmarkStr;
 begin
     OldBkm := ScrollBookmark;
     try
@@ -7947,10 +7749,10 @@ begin
     end;
 end;
 
-function TtsScrollDataset.CheckNextBookmark(Bkm: TBookmark): TBookmark;
+function TtsScrollDataset.CheckNextBookmark(Bkm: TBookmarkStr): TBookmarkStr;
 var
     Err: DbiResult;
-    OldBkm: TBookmark;
+    OldBkm: TBookmarkStr;
 begin
     OldBkm := ScrollBookmark;
     try
@@ -7996,9 +7798,9 @@ begin
     Result.Offset := bpoCurrent;
 end;
 
-function TtsScrollDataset.FirstBookmark: TBookmark;
+function TtsScrollDataset.FirstBookmark: TBookmarkStr;
 var
-    OldBkm: TBookmark;
+    OldBkm: TBookmarkStr;
 begin
     Result := EmptyBookmark;
     if RecCount = 0 then Exit;
@@ -8013,9 +7815,9 @@ begin
     end;
 end;
 
-function TtsScrollDataset.LastBookmark: TBookmark;
+function TtsScrollDataset.LastBookmark: TBookmarkStr;
 var
-    OldBkm: TBookmark;
+    OldBkm: TBookmarkStr;
 begin
     Result := EmptyBookmark;
     if RecCount = 0 then Exit;
@@ -8040,17 +7842,17 @@ begin
     Result := CurBkmPos(LastBookmark);
 end;
 
-function TtsScrollDataset.CompareBkm(Bkm1, Bkm2: TBookmark): Integer;
+function TtsScrollDataset.CompareBkm(Bkm1, Bkm2: TBookmarkStr): Integer;
 begin
     Result := inherited CompareBkm(Bkm1, Bkm2);
 end;
 
-function TtsScrollDataset.GetBufferBookmark(BufRow: Integer): TBookmark;
+function TtsScrollDataset.GetBufferBookmark(BufRow: Integer): TBookmarkStr;
 begin
     Result := PBookmark(BufRow)^;
 end;
 
-function TtsScrollDataset.GetBookmark(BufRow: Integer): TBookmark;
+function TtsScrollDataset.GetBookmark(BufRow: Integer): TBookmarkStr;
 begin
     Result := EmptyBookmark;
     if not Active then Exit;
@@ -8091,10 +7893,10 @@ begin
     FBufRows := FOldBufRows;
 end;
 
-function TtsScrollDataset.GetBookmarkRecID(RecBkm: TBookmark; BufRownr: Integer): Variant;
+function TtsScrollDataset.GetBookmarkRecID(RecBkm: TBookmarkStr; BufRownr: Integer): Variant;
 var
     Err: DbiResult;
-    OldBkm: TBookmark;
+    OldBkm: TBookmarkStr;
     OldActiveIndex: Integer;
 begin
     if BufRownr > 0 then
@@ -8134,10 +7936,10 @@ begin
     end;
 end;
 
-function TtsScrollDataset.GetBkmValueAndRecordID(Fieldno: Integer; Bkm: TBookmark; var FieldValue: Variant): Variant;
+function TtsScrollDataset.GetBkmValueAndRecordID(Fieldno: Integer; Bkm: TBookmarkStr; var FieldValue: Variant): Variant;
 var
-    OldBkm: TBookmark;
-    OldActiveBkm: TBookmark;
+    OldBkm: TBookmarkStr;
+    OldActiveBkm: TBookmarkStr;
     OldActiveIndex: Integer;
 begin
     if VarToStr(Bkm) = VarToStr(EmptyBookmark) then
@@ -8176,36 +7978,16 @@ begin
     end;
 end;
 
-{function TtsScrollDataset.GetCursorBookmark(Handle: HDBICur): TBookmark;
+function TtsScrollDataset.GetCursorBookmark(Handle: HDBICur): TBookmarkStr;
 begin
     Result := EmptyBookmark;
     if not Active then Exit;
 
     DbiGetBookMark(Handle, ReadBuffer);
     SetString(Result, ReadBuffer, FBufBookmarkSize);
-end;}
-
-function TtsScrollDataset.GetCursorBookmark(Handle: HDBICur): TBytes;
-var
-  ReadBuffer: TBytes;
-begin
-  // Inicializa o resultado como um array de bytes vazio
-  Result := nil;
-
-  // Verifica se o dataset está ativo, se não, sai da função
-  if not Active then Exit;
-
-  // Define o tamanho do buffer de leitura
-  SetLength(ReadBuffer, FBufBookmarkSize);
-
-  // Obtém o marcador (bookmark) atual do cursor e armazena no buffer de leitura
-  Check(DbiGetBookMark(Handle, Pointer(ReadBuffer)));
-
-  // Ajusta o resultado para o conteúdo do buffer de leitura
-  Result := ReadBuffer;
 end;
 
-function TtsScrollDataset.DataSetBookmark: TBookmark;
+function TtsScrollDataset.DataSetBookmark: TBookmarkStr;
 begin
     Result := GetCursorBookmark(DatasetHandle);
 end;
@@ -8361,11 +8143,11 @@ begin
         Result := not FieldValuesEqual(FMasterFieldValues, DatasetMasterFieldValues);
 end;
 
-function TtsScrollDataset.LocateBookmark(SearchBkm: TBookmark; var StartBkm, LastBkm: TBookmark;
+function TtsScrollDataset.LocateBookmark(SearchBkm: TBookmarkStr; var StartBkm, LastBkm: TBookmarkStr;
                                          var Count: Longint): DbiResult;
 var
     Err: DbiResult;
-    CurBkm: TBookmark;
+    CurBkm: TBookmarkStr;
     Comp: Integer;
 begin
     if FCountDirection = cdForward then DbiSetToBegin(FHandle)
@@ -8398,9 +8180,9 @@ end;
 
 procedure TtsScrollDataset.CalculatePos;
 var
-    OldBkm: TBookmark;
-    SearchBkm: TBookmark;
-    StartBkm, LastBkm: TBookmark;
+    OldBkm: TBookmarkStr;
+    SearchBkm: TBookmarkStr;
+    StartBkm, LastBkm: TBookmarkStr;
     Count: Longint;
     Err: DbiResult;
     DiffRows: Longint;
@@ -8433,7 +8215,7 @@ begin
     end;
 end;
 
-function TtsScrollDataset.ScrollBookmark: TBookmark;
+function TtsScrollDataset.ScrollBookmark: TBookmarkStr;
 begin
     Result := GetCursorBookmark(FHandle);
 end;
@@ -8451,11 +8233,11 @@ begin
 end;
 
 function TtsScrollDataset.FindKey(Value: string; Fieldno: Integer; CompareType: TtsComboCompareType;
-                                  ParentGrid: TtsCustomDBGrid; FullCmpLen: Boolean; var Found: Boolean): TBookmark;
+                                  ParentGrid: TtsCustomDBGrid; FullCmpLen: Boolean; var Found: Boolean): TBookmarkStr;
 var
     Err: DbiResult;
     Len: Integer;
-    OldBkm: TBookmark;
+    OldBkm: TBookmarkStr;
     CellValue: string;
 begin
     Result := EmptyBookmark;
@@ -8499,13 +8281,13 @@ begin
     end;
 end;
 
-{function TtsScrollDataset.GetPreviousBkms(var FromBkm: TBookmark; ToBkm: TBookmark;
+function TtsScrollDataset.GetPreviousBkms(var FromBkm: TBookmarkStr; ToBkm: TBookmarkStr;
                                           BkmList: TtsSelectedList;  StepSize: Integer;
                                           SelectingAll: Boolean; var Found: Boolean;
                                           var Count, Total: Longint; var Canceled: Boolean): Boolean;
 var
     Err: DbiResult;
-    CurBkm: TBookmark;
+    CurBkm: TBookmarkStr;
     CntBkm: Integer;
     Info: RecProps;
     Buffer: PChar;
@@ -8536,56 +8318,15 @@ begin
 
     Result := (Err <> 0);
     FromBkm := CurBkm;
-end;}
-
-function TtsScrollDataset.GetPreviousBkms(var FromBkm: TBookmark; ToBkm: TBookmark;
-                                          BkmList: TtsSelectedList; StepSize: Integer;
-                                          SelectingAll: Boolean; var Found: Boolean;
-                                          var Count, Total: Longint; var Canceled: Boolean): Boolean;
-var
-  Err: DbiResult;
-  CurBkm: TBookmark;
-  CntBkm: Integer;
-  Info: RecProps;
-  Buffer: PChar;
-  CompRes: Integer;
-  TempBkm: TBookmarkStr;
-begin
-  Found := False;
-  CntBkm := 0;
-  CurBkm := FromBkm;
-  Buffer := FTempBuffer;
-
-  Err := DbiSetToBookmark(FHandle, PChar(CurBkm));
-  while (Err = 0) and not Found and ((CntBkm < StepSize) or (StepSize = 0)) do
-  begin
-    FGrid.DoScanRecord(SelectingAll, sstScan, Count, Total, Canceled);
-    if Canceled and (Count >= Total) then Break;
-
-    Inc(CntBkm);
-    Err := DbiGetPriorRecord(FHandle, dbiNoLock, Buffer, @Info);
-    if Err = 0 then
-    begin
-      DbiGetBookMark(FHandle, Buffer + FBufRecSize);
-      SetString(TempBkm, Buffer + FBufRecSize, FBufBookmarkSize);
-      CurBkm := TBookmark(TempBkm); // Converte TempBkm para TBookmark
-      CompRes := CompareBkm(CurBkm, ToBkm);
-      if CompRes >= 0 then BkmList.AddItem(TempBkm); // Adiciona TempBkm diretamente
-      Found := CompRes <= 0;
-    end;
-  end;
-
-  Result := (Err <> 0);
-  FromBkm := CurBkm;
 end;
 
-{function TtsScrollDataset.GetNextBkms(var FromBkm: TBookmark; ToBkm: TBookmark;
+function TtsScrollDataset.GetNextBkms(var FromBkm: TBookmarkStr; ToBkm: TBookmarkStr;
                                       BkmList: TtsSelectedList; StepSize: Integer;
                                       SelectingAll: Boolean; var Found: Boolean;
                                       var Count, Total: Longint; var Canceled: Boolean): Boolean;
 var
     Err: DbiResult;
-    CurBkm: TBookmark;
+    CurBkm: TBookmarkStr;
     CntBkm: Integer;
     Info: RecProps;
     Buffer: PChar;
@@ -8621,70 +8362,24 @@ begin
     FromBkm := CurBkm;
     Result := (Err <> 0);
     if (Err = DbiErr_Eof) and (ToBkm = '') then Found := True;
-end;}
-
-function TtsScrollDataset.GetNextBkms(var FromBkm: TBookmark; ToBkm: TBookmark;
-                                      BkmList: TtsSelectedList; StepSize: Integer;
-                                      SelectingAll: Boolean; var Found: Boolean;
-                                      var Count, Total: Longint; var Canceled: Boolean): Boolean;
-var
-  Err: DbiResult;
-  CurBkm: TBookmark;
-  CntBkm: Integer;
-  Info: RecProps;
-  Buffer: PChar;
-  CompRes: Integer;
-  TempBkmStr: TBookmarkStr;
-begin
-  Found := False;
-  CntBkm := 0;
-  Buffer := FTempBuffer;
-
-  if FromBkm <> nil then
-    Err := DbiSetToBookmark(FHandle, FromBkm)
-  else
-    Err := DbiSetToBegin(FHandle);
-
-  while (Err = 0) and not Found and ((CntBkm < StepSize) or (StepSize = 0)) do
-  begin
-    FGrid.DoScanRecord(SelectingAll, sstScan, Count, Total, Canceled);
-    if Canceled and (Count >= Total) then Break;
-
-    Inc(CntBkm);
-    Err := DbiGetNextRecord(FHandle, dbiNoLock, Buffer, @Info);
-    if Err = 0 then
-    begin
-      DbiGetBookMark(FHandle, Buffer + FBufRecSize);
-      SetString(TempBkmStr, Buffer + FBufRecSize, FBufBookmarkSize);
-      CurBkm := TBookmark(TempBkmStr); // Converte TempBkmStr para TBookmark
-      CompRes := -1;
-      if ToBkm <> nil then CompRes := CompareBkm(CurBkm, ToBkm);
-      if CompRes <= 0 then BkmList.AddItem(TempBkmStr);
-      Found := CompRes >= 0;
-    end;
-  end;
-
-  FromBkm := TBookmark(TempBkmStr); // Converte TempBkmStr para TBookmark
-  Result := (Err <> 0);
-  if (Err = DbiErr_Eof) and (ToBkm = nil) then Found := True;
 end;
 
-procedure TtsScrollDataset.SetBookmarkPos(Value: TBookmark);
+procedure TtsScrollDataset.SetBookmarkPos(Value: TBookmarkStr);
 begin
     DbiSetToBookmark(FHandle, PChar(Value));
 end;
 
-function TtsScrollDataset.GetBookmarkPos: TBookmark;
+function TtsScrollDataset.GetBookmarkPos: TBookmarkStr;
 begin
     Result := ScrollBookmark;
 end;
 
-function TtsScrollDataset.LocateValue(FromBkm, ToBkm: TBookmark; Value: string; Fieldno: Integer;
+function TtsScrollDataset.LocateValue(FromBkm, ToBkm: TBookmarkStr; Value: string; Fieldno: Integer;
                                       CompareType: TtsComboCompareType; ParentGrid: TtsCustomDBGrid;
-                                      FullCmpLen: Boolean; var Found: Boolean): TBookmark;
+                                      FullCmpLen: Boolean; var Found: Boolean): TBookmarkStr;
 var
     Err: DbiResult;
-    CurBkm, OldBkm: TBookmark;
+    CurBkm, OldBkm: TBookmarkStr;
     CellValue: string;
     Len: Integer;
     OldActiveIndex: Integer;
@@ -8748,14 +8443,14 @@ begin
     end;
 end;
 
-function TtsScrollDataset.BookmarkValue(Fieldno: Longint; Bkm: TBookmark): Variant;
+function TtsScrollDataset.BookmarkValue(Fieldno: Longint; Bkm: TBookmarkStr): Variant;
 var
-    OldBkm: TBookmark;
-    OldActiveBkm: TBookmark;
+    OldBkm: TBookmarkStr;
+    OldActiveBkm: TBookmarkStr;
     OldActiveIndex: Integer;
 begin
     Result := Unassigned;
-    if Bkm = nil then
+    if Bkm = '' then
     begin
         OldActiveBkm := ActiveBookmark;
         try
@@ -8786,7 +8481,7 @@ begin
     end;
 end;
 
-procedure TtsScrollDataset.SetBookmark(BufRow: Integer; Bkm: TBookmark);
+procedure TtsScrollDataset.SetBookmark(BufRow: Integer; Bkm: TBookmarkStr);
 begin
     CopyMemory(RecordBuffer(BufRow) + FBufRecSize, PChar(Bkm), FBufBookmarkSize);
 end;
@@ -8814,11 +8509,11 @@ begin
     Result := FGrid.CanUseRecordIds;
 end;
 
-function TtsScrollDataset.InsertRecord(MoveDataUp: Boolean; CurBkm: TBookmark): TBookmark;
+function TtsScrollDataset.InsertRecord(MoveDataUp: Boolean; CurBkm: TBookmarkStr): TBookmarkStr;
 var
     OldActive: Integer;
     MoveCount: Longint;
-    OldBkm: TBookmark;
+    OldBkm: TBookmarkStr;
 begin
     Result := EmptyBookmark;
     if not Active then Exit;
@@ -8882,7 +8577,7 @@ begin
     Result := EmptyBookmark;
 end;
 
-function TtsScrollDataset.AppendRecord(CurBkm: TBookmark): TBookmark;
+function TtsScrollDataset.AppendRecord(CurBkm: TBookmarkStr): TBookmarkStr;
 var
     Redraw: Boolean;
 begin
@@ -8945,7 +8640,7 @@ begin
     end;
 end;
 
-procedure TtsScrollDataset.EstimatePosition(OldBookmark, NewBookmark: TBookmark);
+procedure TtsScrollDataset.EstimatePosition(OldBookmark, NewBookmark: TBookmarkStr);
 var
     OldActiveRec: Integer;
     DiffRows: Longint;
@@ -8985,7 +8680,7 @@ begin
     end;
 end;
 
-function TtsScrollDataset.SyncToBookmark(NewBookmark, OldBookmark: TBookmark;
+function TtsScrollDataset.SyncToBookmark(NewBookmark, OldBookmark: TBookmarkStr;
                                          TopRow: Integer; MoveToTop: Boolean;
                                          var RowMoved: Boolean): Boolean;
 var
@@ -9007,7 +8702,7 @@ begin
     end;
 end;
 
-function TtsScrollDataset.MoveToRecord(Bkm: TBookmark): Boolean;
+function TtsScrollDataset.MoveToRecord(Bkm: TBookmarkStr): Boolean;
 var
     RowMoved: Boolean;
 begin
@@ -9015,11 +8710,11 @@ begin
     Result := SyncToBookmark(Bkm, Bookmark[ActiveRecord], CalcMin(1, ActiveRecord), True, RowMoved);
 end;
 
-procedure TtsScrollDataset.EndInsert(var NewBookmark: TBookmark; Canceled: Boolean;
+procedure TtsScrollDataset.EndInsert(var NewBookmark: TBookmarkStr; Canceled: Boolean;
                                      Reread: Boolean; TopRow: Integer; var RowMoved: Boolean);
 var
     StartRow: Integer;
-    OldBookmark: TBookmark;
+    OldBookmark: TBookmarkStr;
 begin
     RowMoved := False;
     NewBookmark := EmptyBookmark;
@@ -9060,10 +8755,10 @@ begin
     end;
 end;
 
-procedure TtsScrollDataset.EndUpdate(var NewBookmark: TBookmark; TopRow: Integer;
+procedure TtsScrollDataset.EndUpdate(var NewBookmark: TBookmarkStr; TopRow: Integer;
                                      var RowMoved, BufferMoved: Boolean);
 var
-    OldBookmark: TBookmark;
+    OldBookmark: TBookmarkStr;
 begin
     RowMoved := False;
     BufferMoved := False;
@@ -9132,9 +8827,9 @@ begin
     if Reread then RereadBuffer(1, True);
 end;
 
-function TtsScrollDataset.InBuffer(FromRow: Integer; Bkm: TBookmark): Boolean;
+function TtsScrollDataset.InBuffer(FromRow: Integer; Bkm: TBookmarkStr): Boolean;
 var
-    OldBkm, StartBkm, EndBkm: TBookmark;
+    OldBkm, StartBkm, EndBkm: TBookmarkStr;
 begin
     Result := (VarToStr(Bkm) <> VarToStr(EmptyBookmark)) and (BufferRows >= FromRow);
     if not Result then Exit;
@@ -9166,7 +8861,7 @@ begin
     end;
 end;
 
-function TtsScrollDataset.SetPosOnBookmark(Bkm: TBookmark; TopRow: Integer;
+function TtsScrollDataset.SetPosOnBookmark(Bkm: TBookmarkStr; TopRow: Integer;
                                            MoveToTop: Boolean; var Reposition,
                                            RowMoved: Boolean; var Err: DbiResult): Boolean;
 var
@@ -9223,7 +8918,7 @@ begin
     end;
 end;
 
-function TtsScrollDataset.RepositionBuffer(ActiveBkm: TBookmark; TopRow: Integer;
+function TtsScrollDataset.RepositionBuffer(ActiveBkm: TBookmarkStr; TopRow: Integer;
                                            MoveToTop: Boolean; var Reposition, RowMoved: Boolean): Boolean;
 var
     Err: DbiResult;
@@ -10647,7 +10342,7 @@ end;
 
 {TtsBookmarkSetNode}
 
-{function TtsBookmarkSetNode.Compare(NodeSet: TtsCustomSet; NodeValue : Pointer) : TtsSetOrder;
+function TtsBookmarkSetNode.Compare(NodeSet: TtsCustomSet; NodeValue : Pointer) : TtsSetOrder;
 var
     CompRes: Integer;
 begin
@@ -10658,26 +10353,6 @@ begin
         Result := ordSmaller
     else
         Result := ordLarger
-end;}
-
-function TtsBookmarkSetNode.Compare(NodeSet: TtsCustomSet; NodeValue: Pointer): TtsSetOrder;
-var
-  CompRes: Integer;
-  NodeValueStr: string;
-begin
-  // Converte NodeValue para string
-  NodeValueStr := PChar(NodeValue);
-
-  // Compara NodeValueStr com FNodeValue
-  CompRes := TtsBookmarkSet(NodeSet).Grid.CompareBkm(NodeValueStr, FNodeValue);
-
-  // Determina o resultado da comparação
-  if CompRes = 0 then
-    Result := ordEqual
-  else if CompRes < 0 then
-    Result := ordSmaller
-  else
-    Result := ordLarger;
 end;
 
 {TtsBookmarkSet}
@@ -10734,9 +10409,9 @@ begin
     ResetBkmList;
 end;
 
-procedure TtsBookmarkSet.GetBkmListPos(Bkm: TBookmark; var Top, Bottom: Integer);
+procedure TtsBookmarkSet.GetBkmListPos(Bkm: TBookmarkStr; var Top, Bottom: Integer);
 var
-    Val: TBookmark;
+    Val: TBookmarkStr;
     CompareRes: Integer;
 begin
     if Top <= Bottom then
@@ -10795,7 +10470,7 @@ end;
 function TtsBookmarkSet.Next(Bkm: Variant): Variant;
 var
     Found: Boolean;
-    LastBkm: TBookmark;
+    LastBkm: TBookmarkStr;
     BPos, EPos: Integer;
 begin
     Result := Unassigned;
@@ -10827,7 +10502,7 @@ function TtsBookmarkSet.Previous(Bkm: Variant): Variant;
 var
     Found: Boolean;
     BPos, EPos: Integer;
-    LastBkm: TBookmark;
+    LastBkm: TBookmarkStr;
 begin
     Result := Unassigned;
     Found := False;
@@ -11230,7 +10905,7 @@ end;
 procedure TtsDBSelection.AddSetSelection(const FromRow, ToRow: TtsBkmPos; var Changed: Boolean);
 var
     OldCount: Integer;
-    StartBkm, EndBkm: TBookmark;
+    StartBkm, EndBkm: TBookmarkStr;
 begin
     try
         OldCount := FBookmarkSet.Count;
@@ -11251,7 +10926,7 @@ begin
         else AddSetSelection(FromRow, ToRow, Changed);
 end;
 
-procedure TtsDBSelection.AddSelection(FromRow, ToRow: TBookmark; var Changed: Boolean);
+procedure TtsDBSelection.AddSelection(FromRow, ToRow: TBookmarkStr; var Changed: Boolean);
 begin
     Changed := False;
     if (FGrid.BookmarkType = bmtDefault) and (FGrid.CompareBkm(FromRow, ToRow) = 1) then Exit;
@@ -11284,7 +10959,7 @@ end;
 procedure TtsDBSelection.RemoveSetSelection(const FromRow, ToRow: TtsBkmPos; var Changed: Boolean);
 var
     OldCount: Integer;
-    StartBkm, EndBkm: TBookmark;
+    StartBkm, EndBkm: TBookmarkStr;
 begin
     try
         OldCount := FBookmarkSet.Count;
@@ -11306,7 +10981,7 @@ begin
         else RemoveSetSelection(FromRow, ToRow, Changed);
 end;
 
-procedure TtsDBSelection.RemoveSelection(FromRow, ToRow: TBookmark; var Changed: Boolean);
+procedure TtsDBSelection.RemoveSelection(FromRow, ToRow: TBookmarkStr; var Changed: Boolean);
 begin
     Changed := False;
     if (FGrid.BookmarkType = bmtDefault) and (FGrid.CompareBkm(FromRow, ToRow) = 1) then Exit;
@@ -11506,7 +11181,7 @@ end;
 
 procedure TtsDBSelection.ChangeSetSelection(const FromRow, ToRow: TtsBkmPos);
 var
-    StartBkm, EndBkm: TBookmark;
+    StartBkm, EndBkm: TBookmarkStr;
 begin
     try
         StartBkm := FGrid.FGridData.ActualBkmPos(FromRow).Bkm;
@@ -11531,7 +11206,7 @@ end;
 procedure TtsDBSelection.ChangeRownrSelection(FromRownr, ToRownr: Longint);
 var
     I: Longint;
-    Bkm: TBookmark;
+    Bkm: TBookmarkStr;
 begin
     if FromRownr > ToRownr then Exit;
 
@@ -11652,7 +11327,7 @@ begin
         else ChangeSetSelection(FromRow, ToRow)
 end;
 
-procedure TtsDBSelection.ChangeSelection(FromRow, ToRow: TBookmark);
+procedure TtsDBSelection.ChangeSelection(FromRow, ToRow: TBookmarkStr);
 begin
     if (FGrid.BookmarkType = bmtDefault) and (FGrid.CompareBkm(FromRow, ToRow) = 1) then Exit;
     ChangeBkmPosSelection(CurBkmPos(FromRow), CurBkmPos(ToRow), crBoth);
@@ -11667,13 +11342,13 @@ begin
     if Changed then FGrid.SetSelectChanged(stRowSelect);
 end;
 
-procedure TtsDBSelection.UpdateSelection(FromRow, ToRow: TBookmark; Select: Boolean);
+procedure TtsDBSelection.UpdateSelection(FromRow, ToRow: TBookmarkStr; Select: Boolean);
 begin
     if (FGrid.BookmarkType = bmtDefault) and (FGrid.CompareBkm(FromRow, ToRow) = 1) then Exit;
     UpdateBkmPosSelection(CurBkmPos(FromRow), CurBkmPos(ToRow), Select);
 end;
 
-procedure TtsDBSelection.SetSelected(DataRow: TBookmark; Value: Boolean);
+procedure TtsDBSelection.SetSelected(DataRow: TBookmarkStr; Value: Boolean);
 var
     DatasetPos: TtsDatasetPosition;
 begin
@@ -11725,7 +11400,7 @@ end;
 
 function TtsDBSelection.GetFirst: Variant;
 var
-    Bkm: TBookmark;
+    Bkm: TBookmarkStr;
 begin
     Result := Unassigned;
     if not FGrid.DataBound then begin Result := FUnboundSelection.First; Exit end;
@@ -11746,7 +11421,7 @@ end;
 
 function TtsDBSelection.GetLast: Variant;
 var
-    Bkm: TBookmark;
+    Bkm: TBookmarkStr;
 begin
     Result := Unassigned;
     if not FGrid.DataBound then begin Result := FUnboundSelection.Last; Exit end;
@@ -11811,7 +11486,7 @@ end;
 
 function TtsDBSelection.NextInRange(Index: Variant): Variant;
 var
-    Bkm, NextBkm: TBookmark;
+    Bkm, NextBkm: TBookmarkStr;
     BkmPos, NewBkmPos: TtsBkmPos;
     RangeIndex: Longint;
     Found: Boolean;
@@ -11855,7 +11530,7 @@ end;
 
 function TtsDBSelection.PreviousInRange(Index: Variant): Variant;
 var
-    Bkm, PrevBkm: TBookmark;
+    Bkm, PrevBkm: TBookmarkStr;
     BkmPos, NewBkmPos: TtsBkmPos;
     RangeIndex: Longint;
     Found: Boolean;
@@ -12753,7 +12428,7 @@ begin
     Result := Dataset.Recno;
 end;
 
-function TtsStandardDataset.GetActiveBookmark: TBookmark;
+function TtsStandardDataset.GetActiveBookmark: TBookmarkStr;
 begin
     Result := Bookmark[ActiveRecord];
 end;
@@ -12788,7 +12463,7 @@ begin
     Result := ActiveRecord;
 end;
 
-function TtsStandardDataset.BufferPos(Bkm: TBookmark): Integer;
+function TtsStandardDataset.BufferPos(Bkm: TBookmarkStr): Integer;
 var
     Count: Integer;
     OldActive: Integer;
@@ -12846,7 +12521,7 @@ begin
     end;
 end;
 
-function TtsStandardDataset.BufferRow(Bkm: TBookmark): Integer;
+function TtsStandardDataset.BufferRow(Bkm: TBookmarkStr): Integer;
 begin
     Result := BufferPos(Bkm);
     if Result > Datalink.RecordCount then Result := 0;
@@ -12854,7 +12529,7 @@ end;
 
 function TtsStandardDataset.BufferBkmPos(BkmPos: TtsBkmPos): Integer;
 var
-    Bkm: TBookmark;
+    Bkm: TBookmarkStr;
 begin
     Result := 0;
     if not Active then Exit;
@@ -12907,7 +12582,7 @@ begin
     end;
 end;
 
-function TtsStandardDataset.GetBookmark(BufRow: Integer): TBookmark;
+function TtsStandardDataset.GetBookmark(BufRow: Integer): TBookmarkStr;
 var
     OldActive: Integer;
 begin
@@ -13081,7 +12756,7 @@ begin
     Result := Dataset.EOF;
 end;
 
-function TtsStandardDataset.NextBufferBkm(Bkm: TBookmark; var NextBkm: TBookmark): Boolean;
+function TtsStandardDataset.NextBufferBkm(Bkm: TBookmarkStr; var NextBkm: TBookmarkStr): Boolean;
 var
     BufIndex: Integer;
 begin
@@ -13094,7 +12769,7 @@ begin
     end;
 end;
 
-function TtsStandardDataset.PrevBufferBkm(Bkm: TBookmark; var PrevBkm: TBookmark): Boolean;
+function TtsStandardDataset.PrevBufferBkm(Bkm: TBookmarkStr; var PrevBkm: TBookmarkStr): Boolean;
 var
     BufIndex: Integer;
 begin
@@ -13107,7 +12782,7 @@ begin
     end;
 end;
 
-function TtsStandardDataset.SetToBookmark(Bkm: TBookmark; RaiseError: Boolean): Boolean;
+function TtsStandardDataset.SetToBookmark(Bkm: TBookmarkStr; RaiseError: Boolean): Boolean;
 begin
     Result := True;
     try
@@ -13120,10 +12795,10 @@ begin
     end;
 end;
 
-function TtsStandardDataset.GetNextBookmark(Bkm: TBookmark; var NextBkm: TBookmark): Boolean;
+function TtsStandardDataset.GetNextBookmark(Bkm: TBookmarkStr; var NextBkm: TBookmarkStr): Boolean;
 var
     Count: Integer;
-    OldBkm: TBookmark;
+    OldBkm: TBookmarkStr;
     Deleted: Boolean;
 begin
     NextBkm := '';
@@ -13151,7 +12826,7 @@ begin
     end;
 end;
 
-function TtsStandardDataset.NextBookmark(Bkm: TBookmark; var NextBkm: TBookmark): Boolean;
+function TtsStandardDataset.NextBookmark(Bkm: TBookmarkStr; var NextBkm: TBookmarkStr): Boolean;
 begin
     NextBkm := '';
     Result := NextBufferBkm(Bkm, NextBkm);
@@ -13159,10 +12834,10 @@ begin
         Result := GetNextBookmark(Bkm, NextBkm);
 end;
 
-function TtsStandardDataset.GetPrevBookmark(Bkm: TBookmark; var PrevBkm: TBookmark): Boolean;
+function TtsStandardDataset.GetPrevBookmark(Bkm: TBookmarkStr; var PrevBkm: TBookmarkStr): Boolean;
 var
     Count: Integer;
-    OldBkm: TBookmark;
+    OldBkm: TBookmarkStr;
     Deleted: Boolean;
 begin
     PrevBkm := '';
@@ -13189,7 +12864,7 @@ begin
     end;
 end;
 
-function TtsStandardDataset.PrevBookmark(Bkm: TBookmark; var PrevBkm: TBookmark): Boolean;
+function TtsStandardDataset.PrevBookmark(Bkm: TBookmarkStr; var PrevBkm: TBookmarkStr): Boolean;
 begin
     PrevBkm := '';
     Result := PrevBufferBkm(Bkm, PrevBkm);
@@ -13199,7 +12874,7 @@ end;
 
 function TtsStandardDataset.PrevBkmPos(const BkmPos: TtsBkmPos): TtsBkmPos;
 var
-    Bkm: TBookmark;
+    Bkm: TBookmarkStr;
 begin
     case BkmPos.Offset of
         bpoBof: Result := BkmPos;
@@ -13226,7 +12901,7 @@ end;
 
 function TtsStandardDataset.NextBkmPos(const BkmPos: TtsBkmPos): TtsBkmPos;
 var
-    Bkm: TBookmark;
+    Bkm: TBookmarkStr;
 begin
     case BkmPos.Offset of
         bpoEof: Result := BkmPos;
@@ -13253,7 +12928,7 @@ end;
 
 function TtsStandardDataset.CheckPrevBkmPos(const BkmPos: TtsBkmPos): TtsBkmPos;
 var
-    Bkm: TBookmark;
+    Bkm: TBookmarkStr;
 begin
     case BkmPos.Offset of
         bpoPrior:
@@ -13286,7 +12961,7 @@ end;
 
 function TtsStandardDataset.CheckNextBkmPos(const BkmPos: TtsBkmPos): TtsBkmPos;
 var
-    Bkm: TBookmark;
+    Bkm: TBookmarkStr;
 begin
     case BkmPos.Offset of
         bpoNext:
@@ -13313,7 +12988,7 @@ begin
     end;
 end;
 
-function TtsStandardDataset.FirstBookmark: TBookmark;
+function TtsStandardDataset.FirstBookmark: TBookmarkStr;
 begin
     if not Dataset.BOF then
     begin
@@ -13323,7 +12998,7 @@ begin
     Result := Dataset.Bookmark;
 end;
 
-function TtsStandardDataset.LastBookmark: TBookmark;
+function TtsStandardDataset.LastBookmark: TBookmarkStr;
 begin
     if not Dataset.EOF then
     begin
@@ -13335,7 +13010,7 @@ end;
 
 function TtsStandardDataset.BufferPositionChanged(Value: TtsDatasetPosition): Boolean;
 var
-    TopBkm: TBookmark;
+    TopBkm: TBookmarkStr;
 begin
     Result := (Value.ActiveRow <> CurrentBufRow);
     if not Result then
@@ -13398,7 +13073,7 @@ procedure TtsStandardDataset.SetAtStart(Value: Boolean);
 begin
 end;
 
-function TtsStandardDataset.MoveToRecord(Bkm: TBookmark): Boolean;
+function TtsStandardDataset.MoveToRecord(Bkm: TBookmarkStr): Boolean;
 var
     Count: Integer;
     OldBufferCount: Integer;
@@ -13448,13 +13123,13 @@ procedure TtsStandardDataset.SetProperties(Reread: Boolean);
 begin
 end;
 
-function TtsStandardDataset.BookmarkValue(Fieldno: Longint; Bkm: TBookmark): Variant;
+function TtsStandardDataset.BookmarkValue(Fieldno: Longint; Bkm: TBookmarkStr): Variant;
 begin
     if CompareBkm(Dataset.Bookmark, Bkm) <> 0 then Dataset.Bookmark := Bkm;
     Result := FGrid.ActiveCell[Fieldno, Bkm];
 end;
 
-function TtsStandardDataset.GetBookmarkRecID(RecBkm: TBookmark; BufRownr: Integer): Variant;
+function TtsStandardDataset.GetBookmarkRecID(RecBkm: TBookmarkStr; BufRownr: Integer): Variant;
 var
     OldDatasetPos: TtsDatasetPosition;
 begin
@@ -13481,7 +13156,7 @@ begin
     end;
 end;
 
-function TtsStandardDataset.GetBkmValueAndRecordID(Fieldno: Integer; Bkm: TBookmark; var FieldValue: Variant): Variant;
+function TtsStandardDataset.GetBkmValueAndRecordID(Fieldno: Integer; Bkm: TBookmarkStr; var FieldValue: Variant): Variant;
 var
     DatasetPos: TtsDatasetPosition;
 begin
@@ -13501,7 +13176,7 @@ begin
     Result := Dataset.RecordCount;
 end;
 
-function TtsStandardDataset.KeyEqual(KeyBkm: TBookmark; SearchValue: string; Fieldno: Integer;
+function TtsStandardDataset.KeyEqual(KeyBkm: TBookmarkStr; SearchValue: string; Fieldno: Integer;
                                      CompareType: TtsComboCompareType; ParentGrid: TtsCustomDBGrid;
                                      FullCmpLen: Boolean): Boolean;
 var
@@ -13538,7 +13213,7 @@ begin
 end;
 
 function TtsStandardDataset.FindKey(Value: string; Fieldno: Integer; CompareType: TtsComboCompareType;
-                                    ParentGrid: TtsCustomDBGrid; FullCmpLen: Boolean; var Found: Boolean): TBookmark;
+                                    ParentGrid: TtsCustomDBGrid; FullCmpLen: Boolean; var Found: Boolean): TBookmarkStr;
 begin
     Result := EmptyBookmark;
     Dataset.DisableControls;
@@ -13564,12 +13239,12 @@ begin
     Found := KeyEqual(Result, Value, Fieldno, CompareType, ParentGrid, FullCmpLen);
 end;
 
-function TtsStandardDataset.GetPreviousBkms(var FromBkm: TBookmark; ToBkm: TBookmark;
+function TtsStandardDataset.GetPreviousBkms(var FromBkm: TBookmarkStr; ToBkm: TBookmarkStr;
                                             BkmList: TtsSelectedList;  StepSize: Integer;
                                             SelectingAll: Boolean; var Found: Boolean;
                                             var Count, Total: Longint; var Canceled: Boolean): Boolean;
 var
-    CurBkm: TBookmark;
+    CurBkm: TBookmarkStr;
     MoveCnt, CntBkm: Integer;
     GetPrev: Boolean;
     CompRes: Integer;
@@ -13616,12 +13291,12 @@ begin
     FromBkm := CurBkm;
 end;
 
-function TtsStandardDataset.GetNextBkms(var FromBkm: TBookmark; ToBkm: TBookmark;
+function TtsStandardDataset.GetNextBkms(var FromBkm: TBookmarkStr; ToBkm: TBookmarkStr;
                                         BkmList: TtsSelectedList; StepSize: Integer;
                                         SelectingAll: Boolean; var Found: Boolean;
                                         var Count, Total: Longint; var Canceled: Boolean): Boolean;
 var
-    CurBkm: TBookmark;
+    CurBkm: TBookmarkStr;
     MoveCnt, CntBkm: Integer;
     GetNext: Boolean;
     CompRes: Integer;
@@ -13679,21 +13354,21 @@ begin
     if Dataset.Eof and (ToBkm = '') then Found := True;
 end;
 
-procedure TtsStandardDataset.SetBookmarkPos(Value: TBookmark);
+procedure TtsStandardDataset.SetBookmarkPos(Value: TBookmarkStr);
 begin
     SetToBookmark(Value, False);
 end;
 
-function TtsStandardDataset.GetBookmarkPos: TBookmark;
+function TtsStandardDataset.GetBookmarkPos: TBookmarkStr;
 begin
     Result := Dataset.Bookmark;
 end;
 
-function TtsStandardDataset.LocateValue(FromBkm, ToBkm: TBookmark; Value: string; Fieldno: Integer;
+function TtsStandardDataset.LocateValue(FromBkm, ToBkm: TBookmarkStr; Value: string; Fieldno: Integer;
                                         CompareType: TtsComboCompareType; ParentGrid: TtsCustomDBGrid;
-                                        FullCmpLen: Boolean; var Found: Boolean): TBookmark;
+                                        FullCmpLen: Boolean; var Found: Boolean): TBookmarkStr;
 var
-    CurBkm: TBookmark;
+    CurBkm: TBookmarkStr;
     CellValue: string;
     Len: Integer;
     CompLen, CompRes: Integer;
@@ -14786,7 +14461,7 @@ begin
     CheckSetCurrent(FGridData.DatasetPosition, DisplayRow);
 end;
 
-function TtsCustomDBGrid.GetSelectionStart: TBookmark;
+function TtsCustomDBGrid.GetSelectionStart: TBookmarkStr;
 begin
     if VarToStr(FSelectionStart) = VarToStr(EmptyBookmark)
         then Result := FCurBookmark
@@ -15019,7 +14694,7 @@ end;
 
 procedure TtsCustomDBGrid.EndInsert;
 var
-    NewBkm: TBookmark;
+    NewBkm: TBookmarkStr;
     NewRow: Longint;
     RowMoved: Boolean;
 begin
@@ -15099,7 +14774,7 @@ end;
 
 procedure TtsCustomDBGrid.EndAppend;
 var
-    NewBkm: TBookmark;
+    NewBkm: TBookmarkStr;
     NewRow, CurRow: Longint;
     OldTopRow: Longint;
     RowMoved: Boolean;
@@ -15136,7 +14811,7 @@ end;
 
 procedure TtsCustomDBGrid.EndEditing;
 var
-    NewBkm: TBookmark;
+    NewBkm: TBookmarkStr;
     NewRow, CurRow: Longint;
     RowMoved: Boolean;
     BufferMoved: Boolean;
@@ -15545,7 +15220,7 @@ begin
     Refresh;
 end;
 
-function TtsCustomDBGrid.IsSameRow(Rownr1, Rownr2: Longint; Bkm1, Bkm2: TBookmark;
+function TtsCustomDBGrid.IsSameRow(Rownr1, Rownr2: Longint; Bkm1, Bkm2: TBookmarkStr;
                                    CheckRownr: Boolean): Boolean;
 begin
     if CheckRownr
@@ -16390,7 +16065,7 @@ begin
     end;
 end;
 
-procedure TtsCustomDBGrid.SetDBComboRow(SearchBkm: TBookmark);
+procedure TtsCustomDBGrid.SetDBComboRow(SearchBkm: TBookmarkStr);
 var
     CurRow: Longint;
 begin
@@ -16436,8 +16111,8 @@ begin
     end;
 end;
 
-function TtsCustomDBGrid.FindDBComboRow(FromBkm, ToBkm: TBookmark; Value: string;
-                                        FullCmpLen: Boolean; var Found: Boolean): TBookmark;
+function TtsCustomDBGrid.FindDBComboRow(FromBkm, ToBkm: TBookmarkStr; Value: string;
+                                        FullCmpLen: Boolean; var Found: Boolean): TBookmarkStr;
 begin
     Found := False;
     Result := EmptyBookmark;
@@ -16455,7 +16130,7 @@ end;
 
 procedure TtsCustomDBGrid.PositionComboRow;
 var
-    SearchBkm: TBookmark;
+    SearchBkm: TBookmarkStr;
     CurValue: string;
     Found: Boolean;
     Reset: Boolean;
@@ -16480,9 +16155,9 @@ begin
     end;
 end;
 
-function TtsCustomDBGrid.FindDBNextComboRow(SearchValue: string; var Found: Boolean): TBookmark;
+function TtsCustomDBGrid.FindDBNextComboRow(SearchValue: string; var Found: Boolean): TBookmarkStr;
 var
-    CurBkm, NewBkm, NextBkm: TBookmark;
+    CurBkm, NewBkm, NextBkm: TBookmarkStr;
     ComboValue: string;
 begin
     Found := False;
@@ -16517,9 +16192,9 @@ begin
     if Found then Result := NewBkm;
 end;
 
-function TtsCustomDBGrid.FindDBComboFirstChar(Key: Char; var Found: Boolean): TBookmark;
+function TtsCustomDBGrid.FindDBComboFirstChar(Key: Char; var Found: Boolean): TBookmarkStr;
 var
-    SearchBkm: TBookmark;
+    SearchBkm: TBookmarkStr;
     CurValue, ComboValue: string;
 begin
     Found := False;
@@ -16550,11 +16225,11 @@ begin
     Result := SearchBkm;
 end;
 
-function TtsCustomDBGrid.FindDBComboString(Key: Char; var Found: Boolean): TBookmark;
+function TtsCustomDBGrid.FindDBComboString(Key: Char; var Found: Boolean): TBookmarkStr;
 var
     SearchValue: string;
     ComboValue: string;
-    SearchBkm: TBookmark;
+    SearchBkm: TBookmarkStr;
 begin
     Found := False;
     CheckResetComboSearchValue;
@@ -16592,7 +16267,7 @@ end;
 
 function TtsCustomDBGrid.PositionDropDownList(Key: Char): Variant;
 var
-    SearchBkm: TBookmark;
+    SearchBkm: TBookmarkStr;
     ComboValue: string;
     Found: Boolean;
     Reset: Boolean;
@@ -16655,7 +16330,7 @@ end;
 
 function TtsCustomDBGrid.PositionAutoFill(CellExit: Boolean): Boolean;
 var
-    SearchBkm: TBookmark;
+    SearchBkm: TBookmarkStr;
     ComboValue: string;
     NewValue: Variant;
     Found: Boolean;
@@ -17587,7 +17262,7 @@ end;
 procedure TtsCustomDBGrid.RepositionRowSelect(ScrollCount: Integer; NewCol, NewRow,
                                               NewLeftCol, NewTopRow: Longint);
 var
-    NewBkm: TBookmark;
+    NewBkm: TBookmarkStr;
     CompRes: Integer;
     RowsSelected: Boolean;
 begin
@@ -19526,7 +19201,7 @@ begin
     end;
 end;
 
-procedure TtsCustomDBGrid.PositionRec(DisplayCol: Longint; Bookmark: TBookmark;
+procedure TtsCustomDBGrid.PositionRec(DisplayCol: Longint; Bookmark: TBookmarkStr;
                                       Synchronize: Boolean);
 var
     OldRow, NewRow: Longint;
@@ -19563,7 +19238,7 @@ begin
     CheckRowColChanged;
 end;
 
-procedure TtsCustomDBGrid.PositionCurrentRec(DisplayCol: Longint; Bookmark: TBookmark;
+procedure TtsCustomDBGrid.PositionCurrentRec(DisplayCol: Longint; Bookmark: TBookmarkStr;
                                              Synchronize, Position: Boolean);
 begin
     if not CanSetCurrentRec then Exit;
@@ -19578,7 +19253,7 @@ begin
     end;
 end;
 
-procedure TtsCustomDBGrid.SetCurrentRec(Bookmark: TBookmark; BufRownr: Integer);
+procedure TtsCustomDBGrid.SetCurrentRec(Bookmark: TBookmarkStr; BufRownr: Integer);
 begin
     if CompareBkm(FCurBookmark, Bookmark) <> 0 then
     begin
@@ -21256,7 +20931,7 @@ begin
     Result := FScrollPosition;
 end;
 
-procedure TtsCustomDBGrid.GetFirstLastBkm(First, Last: Longint; var FirstBkm, LastBkm: TBookmark );
+procedure TtsCustomDBGrid.GetFirstLastBkm(First, Last: Longint; var FirstBkm, LastBkm: TBookmarkStr );
 var
     Temp: string;
 begin
@@ -21659,7 +21334,7 @@ begin
     SelectionsChanged(True);
 end;
 
-procedure TtsCustomDBGrid.RowSelectScroll(CurrentBkm: TBookmark; Count: Integer);
+procedure TtsCustomDBGrid.RowSelectScroll(CurrentBkm: TBookmarkStr; Count: Integer);
 begin
     if UseStandardScrolling then
     begin
@@ -22026,7 +21701,7 @@ var
     CompRes: Integer;
     MoveCount: Integer;
     CurRow: Longint;
-    BottomBkm: TBookmark;
+    BottomBkm: TBookmarkStr;
     MaxRow: Longint;
 begin
     if not DataBound then begin inherited; Exit; end;
@@ -22165,7 +21840,7 @@ end;
 
 procedure TtsCustomDBGrid.AddRowSelection(First, Last: Longint);
 var
-    FirstBkm, LastBkm: TBookmark;
+    FirstBkm, LastBkm: TBookmarkStr;
 begin
     if not DataBound then begin inherited; Exit; end;
     if not Active then Exit;
@@ -22185,7 +21860,7 @@ end;
 
 procedure TtsCustomDBGrid.DeleteRowSelection(First, Last: Longint);
 var
-    FirstBkm, LastBkm: TBookmark;
+    FirstBkm, LastBkm: TBookmarkStr;
 begin
     if not DataBound then begin; inherited; Exit; end;
     if not Active then Exit;
@@ -22196,7 +21871,7 @@ end;
 
 procedure TtsCustomDBGrid.ChangeRowSelection(First, Last: Longint);
 var
-    FirstBkm, LastBkm: TBookmark;
+    FirstBkm, LastBkm: TBookmarkStr;
 begin
     if not DataBound then begin; inherited; Exit; end;
     if not Active then Exit;
@@ -22250,7 +21925,7 @@ begin
     end;
 end;
 
-function TtsCustomDBGrid.GetDatasetList(DisplayRow: Integer; FromBkm, ToBkm: TBookmark;
+function TtsCustomDBGrid.GetDatasetList(DisplayRow: Integer; FromBkm, ToBkm: TBookmarkStr;
                                         Direction: Integer; SelectingAll: Boolean; var List: TtsSelectedList;
                                         var Canceled: Boolean): Integer;
 var
@@ -22258,8 +21933,8 @@ var
     Eof, Bof: Boolean;
     StepSize: Integer;
     UpFound, DownFound: Boolean;
-    UpBkm, DownBkm: TBookmark;
-    OldBookmark: TBookmark;
+    UpBkm, DownBkm: TBookmarkStr;
+    OldBookmark: TBookmarkStr;
     Total, UpCount, DownCount: Longint;
     GoUp, GoDown: Boolean;
 begin
@@ -22387,7 +22062,7 @@ function TtsCustomDBGrid.GetSelectedList(StartRow, DisplayRow: Longint; var List
 var
     DatasetPos: TtsDatasetPosition;
     Count, Total: Longint;
-    FromBkm: TBookmark;
+    FromBkm: TBookmarkStr;
 begin
     if StartRow <> 0 then
     begin
@@ -22708,7 +22383,7 @@ begin
     UpdateScrollPos;
 end;
 
-procedure TtsCustomDBGrid.SelectSingleDBRow(DataRow: TBookmark; Invalidate: Boolean);
+procedure TtsCustomDBGrid.SelectSingleDBRow(DataRow: TBookmarkStr; Invalidate: Boolean);
 var
     DisplayRow: Longint;
     DisablePaint: Boolean;
@@ -24033,14 +23708,14 @@ begin
     if Active then Result := not DataLink.Dataset.CanModify;
 end;
 
-function TtsCustomDBGrid.CompareBkm(Bkm1, Bkm2: TBookmark): Integer;
+function TtsCustomDBGrid.CompareBkm(Bkm1, Bkm2: TBookmarkStr): Integer;
 begin
     Result := -2;
     if not DataBound or not Active then Exit;
     Result := FGridData.CompareBkm(Bkm1, Bkm2);
 end;
 
-function TtsCustomDBGrid.BkmEqual(var Bkm1: TBookmark; Bkm2: TBookmark): Boolean;
+function TtsCustomDBGrid.BkmEqual(var Bkm1: TBookmarkStr; Bkm2: TBookmarkStr): Boolean;
 begin
     Result := False;
     if not DataBound or not Active then Exit;

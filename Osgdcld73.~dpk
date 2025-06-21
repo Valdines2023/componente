@@ -1,0 +1,61 @@
+package Osgdcld73;
+
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'ObjectSight TopGrid V3 Components'}
+{$IMPLICITBUILD OFF}
+
+requires
+  rtl,
+  designide,
+  vcl,
+  inetdb,
+  inet,
+  osdg7301,
+  osg7301,
+  vcldb,
+  dbrtl;
+
+contains
+  duCustomGridProperties in '..\..\Source\duCustomGridProperties.pas' {dgCustomGridProperties},
+  duCustomMasks in '..\..\Source\duCustomMasks.pas' {dgCustomMasks},
+  duDefineMask in '..\..\Source\duDefineMask.pas' {dgDefineMask},
+  duMaskHelp in '..\..\Source\duMaskHelp.pas' {fmMaskHelp},
+  propertyDescs in '..\..\Source\propertyDescs.pas',
+  duCustomColProperties in '..\..\Source\duCustomColProperties.pas' {dgCustomColProperties},
+  TSGReg in '..\..\Source\TSGReg.pas',
+  TSImagelistEditor in '..\..\Source\TSImagelistEditor.pas',
+  TSSetName in '..\..\Source\TSSetName.pas' {tsSetNameDlg},
+  osGridEditor in '..\..\Source\osGridEditor.pas' {fmOsGridEditor},
+  osColorComboBox in '..\..\Source\osColorComboBox.pas',
+  duSpinOptions in '..\..\Source\duSpinOptions.pas' {dgSpinOptions},
+  osAdvGridEditors in '..\..\Source\osAdvGridEditors.pas',
+  duEditTgColumns in '..\..\Source\duEditTgColumns.pas' {dgEditTgColumns},
+  auOsDesignUtils in '..\..\Source\auOsDesignUtils.pas',
+  duOsComboWizard in '..\..\Source\duOsComboWizard.pas' {dgOsCombo},
+  tsHTMLGridProducer in '..\..\Source\tsHTMLGridProducer.pas',
+  osEditButton in '..\..\Source\osEditButton.pas',
+  osEditCalendar in '..\..\Source\osEditCalendar.pas',
+  dutgLocateDbGrid in '..\..\Source\dutgLocateDbGrid.pas' {dgGetDbGrid};
+
+end.

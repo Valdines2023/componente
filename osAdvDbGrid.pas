@@ -4,9 +4,9 @@ unit osAdvDbGrid;
 
 interface
 
-uses
+uses                           
     Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
-    Data.DB, Menus,
+    DB, DBTables, Menus,
     Dialogs, StdCtrls, Consts, Grids_ts, TSCommon, TSSetLib, TSGLib,
     TSMask, TSImageList, TSDateTimeDef, ExtCtrls, Registry, osSortLib,
     TsGrid {$IFDEF TSVER_V6}, SQLTimSt, Variants {$ENDIF};
@@ -30,7 +30,7 @@ type
   private
     FList: TStringList;
     FDataset: TDataSet;
-    FCache: TBookmark; //TBookmarkStr;
+    FCache: TBookmarkStr;
     FCacheIndex: Integer;
     FCacheFind: Boolean;
     FLinkActive: Boolean;
@@ -40,16 +40,16 @@ type
     procedure SetCurrentRowSelected(Value: Boolean);
     procedure StringsChanged(Sender: TObject);
   protected
-    function CurrentRow: TBookmark; //TBookmarkStr;
-    function Compare(const Item1, Item2: TBookmark {TBookmarkStr}): Integer;
+    function CurrentRow: TBookmarkStr;
+    function Compare(const Item1, Item2: TBookmarkStr): Integer;
     procedure LinkActive(Value: Boolean);
   public
     constructor Create;
     destructor Destroy; override;
     procedure Clear;           // free all bookmarks
     procedure Delete;          // delete all selected rows from dataset
-    function  Find(const Item: TBookmark {TBookmarkStr}; var Index: Integer): Boolean;
-    function  IndexOf(const Item: TBookmark {TBookmarkStr}): Integer;
+    function  Find(const Item: TBookmarkStr; var Index: Integer): Boolean;
+    function  IndexOf(const Item: TBookmarkStr): Integer;
     function  Refresh: Boolean;// drop orphaned bookmarks; True = orphans found
     property Count: Integer read GetCount;
     property CurrentRowSelected: Boolean read GetCurrentRowSelected write SetCurrentRowSelected;
@@ -650,8 +650,8 @@ type
     function  GetBufferRows: Integer;
     procedure DataSetScrolled(Distance : Integer);
     procedure SetActiveRow(Value : Integer);
-    function  GetActiveBookmark : TBookmark; //TBookmarkStr;
-    procedure SetActiveBookmark(Value : TBookmark {TBookmarkStr});
+    function  GetActiveBookmark : TBookmarkStr;
+    procedure SetActiveBookmark(Value : TBookmarkStr);
     procedure SetDataSet(Value : TDataSet);
  
     procedure LinkActive(value : Boolean);
@@ -703,7 +703,7 @@ type
     procedure MoveRow(fromRow, toRow : Integer);
 
     property ActiveRow: Integer read FActiveRow write SetActiveRow;
-    property ActiveBookmark : TBookmark {TBookmarkStr} read GetActiveBookmark write SetActiveBookmark;
+    property ActiveBookmark : TBookmarkStr read GetActiveBookmark write SetActiveBookmark;
     property ActiveRecord : Integer read GetActiveRecord write SetActiveRecord;
     property Bookmark[dataRow : Integer] : TBookmarkStr read GetBookmark;
     property RecordRow[DataRow : Integer] : Integer read GetRecordRow;
@@ -1064,7 +1064,7 @@ type
     FInsertingDataRow  : Integer;
     FDataBound         : Boolean;
     FSettingRowCount   : Boolean;
-    FCurrentRowBookmark : TBookmark; //TBookmarkStr;
+    FCurrentRowBookmark : TBookmarkStr;
     FLoadFirstRow      : Boolean;
     FLastRowLoaded     : Integer;
 
@@ -1243,8 +1243,8 @@ type
     procedure SortOnCol(DataCol: Variant; sortType : TosSortType = stAscending; bClear : Boolean = False); override;
     function  LocateColumn(columnName : String) : TosDbCol;
     function  ReadOnly : Boolean; virtual;
-    function  CurrentBookMark : TBookmark; //TBookmarkStr;
-    function  BookMarkForRow(dataRow : Integer) : TBookmark; //TBookmarkStr;
+    function  CurrentBookMark : TBookmarkStr;
+    function  BookMarkForRow(dataRow : Integer) : TBookmarkStr;
     function  RowForBookMark(bkMark : TBookmarkStr) : Integer;
     function  RawTextValue(dataCol, dataRow : Integer) : String; override;
     function  GroupHeaderText(dataCol, dataRow : Integer) : String; override;
@@ -3426,9 +3426,9 @@ begin
   else Result := ' ';
 end;
 
-function TosGridData.GetActiveBookmark : TBookmark; //TBookmarkStr;
+function TosGridData.GetActiveBookmark : TBookmarkStr;
 begin
-  Result := nil; //'';
+  Result := '';
   if (Self.DataSet <> Nil) and
      (Self.ActiveRow >= 0) then
      Result := DataSet.Bookmark;
@@ -3436,7 +3436,7 @@ begin
   //   Result := ActiveDataRec.Bookmark;
 end;
 
-procedure TosGridData.SetActiveBookmark(Value : TBookmark {TBookmarkStr});
+procedure TosGridData.SetActiveBookmark(Value : TBookmarkStr);
 begin
   {for i := 1 to Count do    // Iterate
   begin
@@ -4597,9 +4597,9 @@ begin
     else if (DatasetField is TFloatField) then
     begin
       if (TFloatField(DatasetField).currency) then
-         Result := FormatSettings.CurrencyString + '#' + FormatSettings.ThousandSeparator + '#' + FormatSettings.DecimalSeparator + StringOfChar('0', FormatSettings.CurrencyDecimals) +
-                   ';-' + FormatSettings.CurrencyString + '#' + FormatSettings.ThousandSeparator + '#' + FormatSettings.DecimalSeparator + StringOfChar('0', FormatSettings.CurrencyDecimals) +
-                   ';' + FormatSettings.CurrencyString + '0' + FormatSettings.DecimalSeparator + StringOfChar('0', FormatSettings.CurrencyDecimals)
+         Result := CurrencyString + '#' + ThousandSeparator + '#' + DecimalSeparator + StringOfChar('0', CurrencyDecimals) +
+                   ';-' + CurrencyString + '#' + ThousandSeparator + '#' + DecimalSeparator + StringOfChar('0', CurrencyDecimals) +
+                   ';' + CurrencyString + '0' + DecimalSeparator + StringOfChar('0', CurrencyDecimals)
       else
          Result := '';
     end
@@ -5517,7 +5517,7 @@ begin
   FDatabound := False;
   FSettingRowCount := False;
   InitActiveFields;
-  FCurrentRowBookmark := nil;
+  FCurrentRowBookmark := '';
   FAutoInsert := True;
 
   Self.HeadingButton := hbCell;
@@ -6225,7 +6225,7 @@ begin
   if not Result then Result := (Dataset.State = dsBrowse);
 end;
 
-function TosCustomAdvDbGrid.CurrentBookMark : TBookmark; //TBookmarkStr;
+function TosCustomAdvDbGrid.CurrentBookMark : TBookmarkStr;
 begin
   Result := Self.FGridData.ActiveBookmark;
 end;
@@ -6353,7 +6353,7 @@ begin
     end;
 end;
 
-function TosCustomAdvDbGrid.BookMarkForRow(dataRow : Integer) : TBookmark; //TBookmarkStr;
+function TosCustomAdvDbGrid.BookMarkForRow(dataRow : Integer) : TBookmarkStr;
 var currRow : Integer;
 begin
   currRow := FGridData.ActiveRow;
@@ -9291,7 +9291,7 @@ var i, oldActive : Integer;
     locateRow : TosDbSortedRow;
     bLocateExisting : Boolean;
 
-  function findRow(theBm : TBookmark {TBookmarkStr}) : TosDbSortedRow;
+  function findRow(theBm : TBookmarkStr) : TosDbSortedRow;
   var bmIndex : Integer;
   begin
     Result := Nil;
@@ -9417,7 +9417,7 @@ begin
     bmIndex := FBookmarks.IndexOf(FDataLink.DataSet.Bookmark);
     if (bmIndex >= 0) then
        FBookmarks.FList.Objects[bmIndex] := Result
-    else if (FDataLink.DataSet.Bookmark <> nil) then
+    else if (FDataLink.DataSet.Bookmark <> '') then
     begin
       FBookmarks.CurrentRowSelected := True;
       bmIndex := FBookmarks.IndexOf(FDataLink.DataSet.Bookmark);
@@ -9813,13 +9813,13 @@ begin
   FList.Clear;
 end;
 
-function TosBookmarkList.Compare(const Item1, Item2: TBookmark {TBookmarkStr}): Integer;
+function TosBookmarkList.Compare(const Item1, Item2: TBookmarkStr): Integer;
 begin
   with FDataset do
     Result := CompareBookmarks(TBookmark(Item1), TBookmark(Item2));
 end;
 
-function TosBookmarkList.CurrentRow: TBookmark{TBookmarkStr};
+function TosBookmarkList.CurrentRow: TBookmarkStr;
 begin
   if not FLinkActive then raise Exception.Create('DataSet not active');
   Result := FDataset.Bookmark;
@@ -9831,7 +9831,7 @@ begin
   Result := Find(CurrentRow, Index);
 end;
 
-function TosBookmarkList.Find(const Item: TBookmark {TBookmarkStr}; var Index: Integer): Boolean;
+function TosBookmarkList.Find(const Item: TBookmarkStr; var Index: Integer): Boolean;
 var
   L, H, I, C: Integer;
 begin
@@ -9847,7 +9847,7 @@ begin
   while L <= H do
   begin
     I := (L + H) shr 1;
-    C := Compare( TBookmark( FList[I] ), Item);
+    C := Compare(FList[I], Item);
     if C < 0 then
        L := I + 1
     else
@@ -9876,7 +9876,7 @@ begin
   Result := FList[Index];
 end;
 
-function TosBookmarkList.IndexOf(const Item: TBookmark {TBookmarkStr}): Integer;
+function TosBookmarkList.IndexOf(const Item: TBookmarkStr): Integer;
 begin
   if not Find(Item, Result) then
     Result := -1;
@@ -9917,7 +9917,7 @@ begin
     try
       for I := FList.Count-1 downto 0 do
       begin
-        Bookmark := TBookmark( FList[I] );
+        Bookmark := FList[I];
         Delete;
         FList.Delete(I);
       end;
@@ -9949,21 +9949,21 @@ end;
 procedure TosBookmarkList.SetCurrentRowSelected(Value: Boolean);
 var
   Index: Integer;
-  Current: TBookmark; //TBookmarkStr;
+  Current: TBookmarkStr;
 begin
   Current := CurrentRow;
   if (Length(Current) = 0) or (Find(Current, Index) = Value) then
      exit;
 
   if Value then
-     FList.Insert(Index, TBookmarkStr(Current) )
+     FList.Insert(Index, Current)
   else
      FList.Delete(Index);
 end;
 
 procedure TosBookmarkList.StringsChanged(Sender: TObject);
 begin
-  FCache := nil;
+  FCache := '';
   FCacheIndex := -1;
 end;
 

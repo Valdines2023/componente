@@ -630,7 +630,7 @@ begin
     Result := 1;
     if tsIsFarEast then
     begin
-        if StrByteType(PAnsiChar(Text) + TextPos - 1, 0) <> mbSingleByte then
+        if StrByteType(PChar(Text) + TextPos - 1, 0) <> mbSingleByte then
             Result := 2;
     end;
 end;
@@ -1101,22 +1101,22 @@ begin
         Result := (TextPos = 1);
         if not Result then
         begin
-            Chars := PrevCharCount(PAnsiChar(Text), TextPos - 1);
-            Result := not IsTextChar(PAnsiChar(Text), TextPos - 1 - Chars);
+            Chars := PrevCharCount(PChar(Text), TextPos - 1);
+            Result := not IsTextChar(PChar(Text), TextPos - 1 - Chars);
         end;
     end;
 end;
 
 function TtsTextMask.IsSentenceStart(MaskInput: TtsMaskInput): Boolean;
 var
-    PText: PAnsiChar;
+    PText: PChar;
 begin
     with MaskInput do
     begin
         Result := (TextPos = 1);
         if not Result then
         begin
-            PText := StrRNTextScan(PAnsiChar(Text), TextPos - 1);
+            PText := StrRNTextScan(PChar(Text), TextPos - 1);
             if PText <> nil then Result := (PText^ = '.');
         end;
     end;
@@ -1219,9 +1219,9 @@ begin
         if (not Matched) and (TextPos + Chars - 1 <= Length(Text)) then
         begin
             if IsInputChar(MaskInput) and (moConvertInput in Options) then
-                Result := AnsiStrLIComp(PAnsiChar(@Text[TextPos]), PAnsiChar(@Picture[Pos]), Chars) = 0
+                Result := AnsiStrLIComp(PChar(@Text[TextPos]), PChar(@Picture[Pos]), Chars) = 0
             else
-                Result := AnsiStrLComp(PAnsiChar(@Text[TextPos]), PAnsiChar(@Picture[Pos]), Chars) = 0;
+                Result := AnsiStrLComp(PChar(@Text[TextPos]), PChar(@Picture[Pos]), Chars) = 0;
 
             if Result then
             begin
@@ -1432,19 +1432,19 @@ begin
             EndChar := Copy(Picture, Node.EndPos, CharCount(Picture, Node.EndPos));
             TextChar := Copy(Text, TextPos, Chars);
 
-            InRange := (AnsiStrComp(PAnsiChar(TextChar), PAnsiChar(StartChar)) >= 0) and
-                       (AnsiStrComp(PAnsiChar(TextChar), PAnsiChar(EndChar)) <= 0);
+            InRange := (AnsiStrComp(PChar(TextChar), PChar(StartChar)) >= 0) and
+                       (AnsiStrComp(PChar(TextChar), PChar(EndChar)) <= 0);
 
             if (not InRange) and IsInputChar(MaskInput) and
                (moConvertInput in Options) and IsCharAlpha(TextChar[1]) and
                (not Node.Complement) then
             begin
                 if CheckCase(TextChar, 1, Length(TextChar), moUpper)
-                    then CharUpperBuff(PWideChar(TextChar), Length(TextChar))
-                    else CharLowerBuff(PWideChar(TextChar), Length(TextChar));
+                    then CharUpperBuff(PChar(TextChar), Length(TextChar))
+                    else CharLowerBuff(PChar(TextChar), Length(TextChar));
 
-                InRange := (AnsiStrComp(PAnsiChar(TextChar), PAnsiChar(StartChar)) >= 0) and
-                           (AnsiStrComp(PAnsiChar(TextChar), PAnsiChar(EndChar)) <= 0);
+                InRange := (AnsiStrComp(PChar(TextChar), PChar(StartChar)) >= 0) and
+                           (AnsiStrComp(PChar(TextChar), PChar(EndChar)) <= 0);
                 if InRange then
                 begin
                     Text[TextPos] := TextChar[1];
@@ -2133,7 +2133,7 @@ begin
     Result := -1;
     for I := 0 to Count - 1 do
     begin
-        if AnsiStrIComp(PAnsiChar(Items[I].Name), PAnsiChar(Name)) = 0 then
+        if AnsiStrIComp(PChar(Items[I].Name), PChar(Name)) = 0 then
         begin
             Result := I;
             Break;

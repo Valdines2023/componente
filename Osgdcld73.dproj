@@ -1,0 +1,182 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{FC69970B-7E7D-4284-902C-1F55C45AC9ED}</ProjectGuid>
+        <MainSource>Osgdcld73.dpk</MainSource>
+        <Base>True</Base>
+        <Config Condition="'$(Config)'==''">Debug</Config>
+        <TargetedPlatforms>1025</TargetedPlatforms>
+        <AppType>Package</AppType>
+        <FrameworkType>VCL</FrameworkType>
+        <ProjectVersion>18.1</ProjectVersion>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+        <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Android' and '$(Base)'=='true') or '$(Base_Android)'!=''">
+        <Base_Android>true</Base_Android>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <DCC_UsePackage>vcl;rtl;dbrtl;adortl;vcldb;vclx;bdertl;vcldbx;ibxpress;dsnap;cds;bdecds;qrpt;teeui;teedb;tee;dss;teeqr;visualclx;visualdbclx;dsnapcrba;dsnapcon;VclSmp;vclshlctrls;vclie;xmlrtl;inet;inetdbbde;inetdbxpress;inetdb;nmfast;webdsnap;websnap;dbexpress;dbxcds;indy;dclOffice2k;Tsg6220;Tsdg6220;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_S>false</DCC_S>
+        <VerInfo_Locale>4105</VerInfo_Locale>
+        <DCC_DcuOutput>..\Lib</DCC_DcuOutput>
+        <DCC_DcpOutput>..\Lib</DCC_DcpOutput>
+        <DCC_N>true</DCC_N>
+        <SanitizedProjectName>Osgdcld73</SanitizedProjectName>
+        <DCC_K>false</DCC_K>
+        <DCC_E>false</DCC_E>
+        <VerInfo_Build>7</VerInfo_Build>
+        <DCC_OutputNeverBuildDcps>true</DCC_OutputNeverBuildDcps>
+        <GenDll>true</GenDll>
+        <DCC_ImageBase>00400000</DCC_ImageBase>
+        <DCC_Description>ObjectSight TopGrid V3 Components</DCC_Description>
+        <VerInfo_Keys>CompanyName=ObjectSight;FileDescription=;FileVersion=3.0.1.7;InternalName=osgdcld73;LegalCopyright=ObjectSight;LegalTrademarks=Copyright 2005 - ObjectSight;OriginalFilename=;ProductName=TopGrid;ProductVersion=3.01;Comments=</VerInfo_Keys>
+        <VerInfo_MajorVer>3</VerInfo_MajorVer>
+        <VerInfo_Release>1</VerInfo_Release>
+        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_F>false</DCC_F>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <DCC_BplOutput>..\Lib</DCC_BplOutput>
+        <GenPackage>true</GenPackage>
+        <DCC_RangeChecking>true</DCC_RangeChecking>
+        <DCC_DebugInformation>1</DCC_DebugInformation>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <Icon_MainIcon>Osgdcld73_Icon.ico</Icon_MainIcon>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <Icon_MainIcon>Osgdcld73_Icon.ico</Icon_MainIcon>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Android)'!=''">
+        <VerInfo_IncludeVerInfo>false</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>package=com.embarcadero.$(MSBuildProjectName);label=$(MSBuildProjectName);versionCode=1;versionName=1.0.0;persistent=False;restoreAnyVersion=False;installLocation=auto;largeHeap=False;theme=TitleBar;hardwareAccelerated=true;apiKey=</VerInfo_Keys>
+        <BT_BuildType>Debug</BT_BuildType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_DebugInformation>0</DCC_DebugInformation>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+        <DCC_Optimize>false</DCC_Optimize>
+        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+    </PropertyGroup>
+    <ItemGroup>
+        <DelphiCompile Include="$(MainSource)">
+            <MainSource>MainSource</MainSource>
+        </DelphiCompile>
+        <DCCReference Include="rtl.dcp"/>
+        <DCCReference Include="designide.dcp"/>
+        <DCCReference Include="vcl.dcp"/>
+        <DCCReference Include="inetdb.dcp"/>
+        <DCCReference Include="inet.dcp"/>
+        <DCCReference Include="osdg7301.dcp"/>
+        <DCCReference Include="osg7301.dcp"/>
+        <DCCReference Include="vcldb.dcp"/>
+        <DCCReference Include="dbrtl.dcp"/>
+        <DCCReference Include="..\..\Source\duCustomGridProperties.pas">
+            <Form>dgCustomGridProperties</Form>
+        </DCCReference>
+        <DCCReference Include="..\..\Source\duCustomMasks.pas">
+            <Form>dgCustomMasks</Form>
+        </DCCReference>
+        <DCCReference Include="..\..\Source\duDefineMask.pas">
+            <Form>dgDefineMask</Form>
+        </DCCReference>
+        <DCCReference Include="..\..\Source\duMaskHelp.pas">
+            <Form>fmMaskHelp</Form>
+        </DCCReference>
+        <DCCReference Include="..\..\Source\propertyDescs.pas"/>
+        <DCCReference Include="..\..\Source\duCustomColProperties.pas">
+            <Form>dgCustomColProperties</Form>
+        </DCCReference>
+        <DCCReference Include="..\..\Source\TSGReg.pas"/>
+        <DCCReference Include="..\..\Source\TSImagelistEditor.pas"/>
+        <DCCReference Include="..\..\Source\TSSetName.pas">
+            <Form>tsSetNameDlg</Form>
+        </DCCReference>
+        <DCCReference Include="..\..\Source\osGridEditor.pas">
+            <Form>fmOsGridEditor</Form>
+        </DCCReference>
+        <DCCReference Include="..\..\Source\osColorComboBox.pas"/>
+        <DCCReference Include="..\..\Source\duSpinOptions.pas">
+            <Form>dgSpinOptions</Form>
+        </DCCReference>
+        <DCCReference Include="..\..\Source\osAdvGridEditors.pas"/>
+        <DCCReference Include="..\..\Source\duEditTgColumns.pas">
+            <Form>dgEditTgColumns</Form>
+        </DCCReference>
+        <DCCReference Include="..\..\Source\auOsDesignUtils.pas"/>
+        <DCCReference Include="..\..\Source\duOsComboWizard.pas">
+            <Form>dgOsCombo</Form>
+        </DCCReference>
+        <DCCReference Include="..\..\Source\tsHTMLGridProducer.pas"/>
+        <DCCReference Include="..\..\Source\osEditButton.pas"/>
+        <DCCReference Include="..\..\Source\osEditCalendar.pas"/>
+        <DCCReference Include="..\..\Source\dutgLocateDbGrid.pas">
+            <Form>dgGetDbGrid</Form>
+        </DCCReference>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Delphi.Personality.12</Borland.Personality>
+        <Borland.ProjectType>Package</Borland.ProjectType>
+        <BorlandProject>
+            <Delphi.Personality>
+                <Source>
+                    <Source Name="MainSource">Osgdcld73.dpk</Source>
+                </Source>
+            </Delphi.Personality>
+            <Platforms>
+                <Platform value="Android">False</Platform>
+                <Platform value="iOSDevice32">False</Platform>
+                <Platform value="iOSDevice64">True</Platform>
+                <Platform value="iOSSimulator">False</Platform>
+                <Platform value="Win32">True</Platform>
+                <Platform value="Win64">False</Platform>
+            </Platforms>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+</Project>

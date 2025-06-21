@@ -17,7 +17,7 @@ uses
     Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, tlhelp32,
     Dialogs, StdCtrls, Consts, Grids_ts, TSCommon, TSSetLib, TSGLib,
     TSMask, TSImageList, TSDateTimeDef, ExtCtrls, Registry, Menus,
-    osSortLib, System.UITypes
+    osSortLib
     {$IFDEF TSVER_V6},  StrUtils, Variants {$ENDIF};
 
 type
@@ -606,10 +606,10 @@ type
         function  GetSelLength: Integer;
         function  TextLineLength(Row : Integer) : Integer;
         function  GetPointCaretPos(WinPos : TPoint; var BeforeTextPos : Boolean) : Integer;
-        function  TextStartOffset(PText : PAnsiChar; Chars : Integer) : Integer;
-        function  LineCaretPosLeft(PText : PAnsiChar; Chars : Integer; XPos : Integer; var CaretPosX : Integer) : Integer;
-        function  LineCaretPosRight(PText : PAnsiChar; Chars : Integer; XPos : Integer; var CaretPosX : Integer) : Integer;
-        function  LineCaretPos(PText : PAnsiChar; Chars : Integer; XPos : Integer;
+        function  TextStartOffset(PText : PChar; Chars : Integer) : Integer;
+        function  LineCaretPosLeft(PText : PChar; Chars : Integer; XPos : Integer; var CaretPosX : Integer) : Integer;
+        function  LineCaretPosRight(PText : PChar; Chars : Integer; XPos : Integer; var CaretPosX : Integer) : Integer;
+        function  LineCaretPos(PText : PChar; Chars : Integer; XPos : Integer;
                                var CaretPosX : Integer) : Integer;
         procedure SetCaretPos;
         procedure HideCaret;
@@ -2460,7 +2460,7 @@ type
      TtsGrid, most of its functionality is defined. For TtsDBGrid all non
      data related functionality is defined.}
 
-    TtsBaseGrid = class(TCustomGrid)
+    TtsBaseGrid = class(TCustomGrid_ts)
     protected
         FpreEditCellValue : Variant;
         FLastHeight : Integer;
@@ -2991,8 +2991,8 @@ type
         procedure DoDrawButton(DisplayCol, DisplayRow: Longint; SpinButtons: TtsSPinButtons;
                                DownButton: TtsSpinButton; AColor: TColor; ButtonMode: TtsButtonMode);
         function  DrawButtonDown(X, Y: Integer; DisplayCol, DisplayRow: Longint): Boolean;
-        procedure DrawTextInRect(Value: PAnsiChar; var DrawData: TtsDrawData; DrawControl: Boolean; DrawSelected: Boolean);
-        procedure DrawText(Value: PAnsiChar; var DrawData: TtsDrawData; DrawSelected: Boolean);
+        procedure DrawTextInRect(Value: PChar; var DrawData: TtsDrawData; DrawControl: Boolean; DrawSelected: Boolean);
+        procedure DrawText(Value: PChar; var DrawData: TtsDrawData; DrawSelected: Boolean);
         function  CalcCheckRect(Cell3D: Boolean; Bitmap: TBitmap; CellRect, BmpRect: TRect; LeftOffset: Integer): TRect;
         procedure DrawCheck(Value: Variant; var DrawData: TtsDrawData; DrawSelected: Boolean);
         procedure DrawCheckOnCanvas(ARect : TRect; Bitmap : TBitmap; BmpRect: TRect; CopyMode : TCopyMode);
@@ -3068,7 +3068,7 @@ type
         procedure CalcHorzFixedWidth;
         procedure CalcVertFixedHeight;
         procedure AssignCellValue(DataCol, DataRow: Longint; var DrawData: TtsDrawData;
-                                  DrawSelected: Boolean; const Value: Variant; PValue: PAnsiChar; Edit, ByUser: Boolean);
+                                  DrawSelected: Boolean; const Value: Variant; PValue: PChar; Edit, ByUser: Boolean);
         procedure UpdateCellFonts;
         function  IsDrawProp(Prop: TtsProperty): Boolean;
         procedure InitPictureMaskColor(MaskColor: TColor);
@@ -3478,7 +3478,7 @@ type
         function  GetMaxScrollRow: Longint;
         function  GetMaxScrollCol: Longint;
         function  GetMaxTopLeft: TGridCoord;
-        procedure MoveTopLeft(ALeft, ATop: Longint);
+        procedure MoveTopLeft(ALeft, ATop: Longint); override;
         function  CanMoveToPos(DisplayCol, DisplayRow: Longint): Boolean; virtual;
         procedure CheckTopLeft(DoPaint: Boolean);
         function  CompVisibleCols(StartCol: Longint): Longint;
@@ -3893,8 +3893,8 @@ type
         procedure ChangeScale(M, D: Integer); override;
         procedure DoDrawCell(ACol, ARow: Longint; ARect: TRect; DrawSelected: Boolean);
         procedure DrawCell(ACol, ARow: Longint; ARect: TRect; AState: TGridDrawState); override;
-        procedure ScrollDataInfo(DX, DY: Integer; var DrawInfo: TGridDrawInfo);
-        procedure TopLeftMoved(const OldTopLeft: TGridCoord);
+        procedure ScrollDataInfo(DX, DY: Integer; var DrawInfo: TGridDrawInfo); override;
+        procedure TopLeftMoved(const OldTopLeft: TGridCoord); override;
         procedure TopLeftChanged; override;
         procedure RowHeightsChanged; override;
         procedure ColWidthsChanged; override;
@@ -3957,7 +3957,7 @@ type
         procedure ResizeCellPropArrays(OldColCount, OldRowCount: Longint);
         function  GetCellValue(DataCol: Longint; DataRow: Longint): Variant; virtual;
         procedure SetCellValue(DataCol: Longint; DataRow: Longint; const Value: Variant); virtual;
-        procedure SetCellPText(DataCol: Longint; DataRow: Longint; Value: PAnsiChar);
+        procedure SetCellPText(DataCol: Longint; DataRow: Longint; Value: PChar);
         function  GetRowBarOn: Boolean;
         procedure SetRowBarOn(Value: Boolean);
         function  GetHeadingOn: Boolean;
@@ -4435,7 +4435,7 @@ type
         property DataColnr[DisplayCol: Longint]: Longint read GetDataColnr;
         property DataRownr[DisplayRow: Longint]: Longint read GetDataRownr;
         property Cell[DataCol: Longint; DataRow: Longint]: Variant read GetCellValue write SetCellValue;
-        property CellPText[DataCol: Longint; DataRow: Longint]: PAnsiChar write SetCellPText;
+        property CellPText[DataCol: Longint; DataRow: Longint]: PChar write SetCellPText;
         property CurrentDataCol : Longint read GetCurrentDataCol write SetCurrentDataCol;
         property CurrentDataRow : Longint read GetCurrentDataRow write SetCurrentDataRow;
         property CheckBoxOnBitmap : TBitmap write SetCheckBoxOnBitmap;
@@ -6169,10 +6169,10 @@ begin
         varString, varOleStr
                    : begin
                         sText := theValue;
-                        if (Pos(FormatSettings.CurrencyString, sText) > 0) then
-                           sText := StringReplace(sText, FormatSettings.CurrencyString	, '', [rfReplaceAll]);
-                        if (Pos(FormatSettings.ThousandSeparator, sText) > 0) then
-                           sText := StringReplace(sText, FormatSettings.ThousandSeparator, '', [rfReplaceAll]);
+                        if (Pos(CurrencyString, sText) > 0) then
+                           sText := StringReplace(sText, CurrencyString	, '', [rfReplaceAll]);
+                        if (Pos(ThousandSeparator, sText) > 0) then
+                           sText := StringReplace(sText, ThousandSeparator, '', [rfReplaceAll]);
                         if (sText = '') then
                            Result := 0
                         else
@@ -6561,7 +6561,7 @@ end;
 
 procedure TtsGridEditBox.DisplayEditText;
 begin
-    GetTextLines(Canvas.Handle, PAnsiChar(FText), Height, Width, Alignment,
+    GetTextLines(Canvas.Handle, PChar(FText), Height, Width, Alignment,
                  (WordWrap <> wwOff), FTextLines, 0);
     if Alignment in [taLeftJustify, taCenter] then
         FStartDisplayChar := 0
@@ -6593,7 +6593,7 @@ begin
         else FOldTextSaved := False;
 
     FText := Value;
-    GetTextLines(Dc, PAnsiChar(FText), Height, Width, Alignment,
+    GetTextLines(Dc, PChar(FText), Height, Width, Alignment,
                  (WordWrap <> wwOff), FTextLines, 0);
     SetTextPosition(0, True);
     SetSelByteStart(0);
@@ -6602,7 +6602,7 @@ begin
         if EditTextResized(ByUser) then
         begin
             Dc := Canvas.Handle;
-            GetTextLines(Dc, PAnsiChar(FText), Height, Width, Alignment,
+            GetTextLines(Dc, PChar(FText), Height, Width, Alignment,
                          (WordWrap <> wwOff), FTextLines, 0);
         end;
     end;
@@ -6705,7 +6705,7 @@ procedure TtsGridEditBox.SetSelStart(Value: Integer);
 var
     Chars, Bytes: Integer;
 begin
-    PCountChars(PAnsiChar(FText), Value, Length(FText), Chars, Bytes, False);
+    PCountChars(PChar(FText), Value, Length(FText), Chars, Bytes, False);
     SetSelByteStart(Bytes);
 end;
 
@@ -6713,7 +6713,7 @@ procedure TtsGridEditBox.SetSelLength(Value: Integer);
 var
     Chars, Bytes: Integer;
 begin
-    PCountChars(PAnsiChar(FText) + FSelByteStart, Value, Length(FText) - FSelByteStart, Chars, Bytes, False);
+    PCountChars(PChar(FText) + FSelByteStart, Value, Length(FText) - FSelByteStart, Chars, Bytes, False);
     SetSelByteLength(Bytes);
 end;
 
@@ -6727,7 +6727,7 @@ begin
         Result := FSelStart
     else
     begin
-        PCountChars(PAnsiChar(FText), FSelByteStart, FSelByteStart, Chars, Bytes, False);
+        PCountChars(PChar(FText), FSelByteStart, FSelByteStart, Chars, Bytes, False);
         FSelStart := Chars;
         Result := FSelStart;
     end;
@@ -6743,7 +6743,7 @@ begin
         Result := FSelLength
     else
     begin
-        PCountChars(PAnsiChar(FText) + FSelByteStart, FSelByteLength, FSelByteLength, Chars, Bytes, False);
+        PCountChars(PChar(FText) + FSelByteStart, FSelByteLength, FSelByteLength, Chars, Bytes, False);
         FSelLength := Chars;
         Result := FSelLength;
     end;
@@ -6762,14 +6762,14 @@ begin
             FStartDisplayChar := FSelByteStart;
     end;
 
-    GetTextLines(Canvas.Handle, PAnsiChar(FText), Height, Width, Alignment,
+    GetTextLines(Canvas.Handle, PChar(FText), Height, Width, Alignment,
                  (WordWrap <> wwOff), FTextLines, 0);
     SetTextPosition(FSelByteStart + Length(Value), FCaretBeforePos);
     SetSelByteStart(FSelByteStart + Length(Value));
 
     if EditTextResized(True) then
     begin
-        GetTextLines(Canvas.Handle, PAnsiChar(FText), Height, Width, Alignment,
+        GetTextLines(Canvas.Handle, PChar(FText), Height, Width, Alignment,
                      (WordWrap <> wwOff), FTextLines, 0);
     end;
 
@@ -6824,7 +6824,7 @@ begin
     AtEofLine := (FCaretOffset = TextLineLength(FCaretRow));
 
     if (FCaretRow < FTextLines.Count - 1) and AtEofLine and
-       (CaretBeforePos or LastCharIsEofLine(PAnsiChar(FText), TextPos)) then
+       (CaretBeforePos or LastCharIsEofLine(PChar(FText), TextPos)) then
     begin
         FCaretRow := FCaretRow + 1;
         FCaretOffset := 0;
@@ -6845,7 +6845,7 @@ var
     I: Integer;
     APoint: TPoint;
     Chars: Integer;
-    PText: PAnsiChar;
+    PText: PChar;
     TextHeight: Integer;
     TextWidth: Integer;
     LineSpacing, TopOffset: Integer;
@@ -6858,7 +6858,7 @@ begin
     TextHeight := Metric.tmHeight + LineSpacing;
 
     TopOffset := GetVertTopOffset(TopOffset, GetDrawRect, FTextLines, LineSpacing, VertAlignment, Metric);
-    APoint.X := TextStartOffset(PAnsiChar(FText), Length(FText));
+    APoint.X := TextStartOffset(PChar(FText), Length(FText));
     APoint.Y := TopOffset;
 
     if FTextLines = nil then
@@ -6869,7 +6869,7 @@ begin
 
     if not IsMultiLine then
     begin
-        PText := PAnsiChar(FText);
+        PText := PChar(FText);
         if FStartDisplayChar > Length(FText) then
             FStartDisplayChar := 0;
 
@@ -6898,7 +6898,7 @@ begin
             I := I + 1;
         end;
 
-        PText := PAnsiChar(FText) + Chars;
+        PText := PChar(FText) + Chars;
         APoint.X := TextStartOffset(PText, TextLineLength(I));
         APoint.Y := (FCaretRow - FFirstDisplayRow) * TextHeight + TopOffset;
 
@@ -6921,7 +6921,7 @@ var
     I : Integer;
     APoint : TPoint;
     Chars : Integer;
-    PText : PAnsiChar;
+    PText : PChar;
     TextHeight : Integer;
     TextWidth : Integer;
     LineSpacing, TopOffset: Integer;
@@ -6945,7 +6945,7 @@ begin
 
     if not IsMultiLine then
     begin
-        PText := PAnsiChar(FText);
+        PText := PChar(FText);
         if FStartDisplayChar > Length(FText) then
             FStartDisplayChar := Length(FText);
 
@@ -6971,7 +6971,7 @@ begin
 
         APoint.Y := (FCaretRow - FFirstDisplayRow) * TextHeight + TopOffset;
 
-        PText := PAnsiChar(FText) + Chars;
+        PText := PChar(FText) + Chars;
         CharOffset := FCaretOffset;
         GetPrintCharWidth(Canvas, Metric, PText + CharOffset,
                           TextLineLength(FCaretRow) - CharOffset, True, False, TextWidth);
@@ -7016,7 +7016,7 @@ function TtsGridEditBox.GetPointCaretPos(WinPos : TPoint;
 var
     TextPos : Integer;
     Chars : Integer;
-    PText : PAnsiChar;
+    PText : PChar;
     TextHeight : Integer;
     Row : Integer;
     CaretPosX : Integer;
@@ -7032,12 +7032,12 @@ begin
     begin
         if Alignment in [taLeftJustify, taCenter] then
         begin
-            PText := PAnsiChar(FText) + FStartDisplayChar;
+            PText := PChar(FText) + FStartDisplayChar;
             Chars := Length(FText) - FStartDisplayChar;
         end
         else
         begin
-            PText := PAnsiChar(FText);
+            PText := PChar(FText);
             Chars := FStartDisplayChar;
         end;
 
@@ -7060,7 +7060,7 @@ begin
 
         if Row <= FtextLines.Count - 1 then
         begin
-            PText := PAnsiChar(FText) + TextPos;
+            PText := PChar(FText) + TextPos;
             MaxOffset := Chars;
             if LastCharIsEofLine(PText, Chars) then
                 MaxOffset := MaxOffset - PrevCharCount(PText, Chars);
@@ -7081,7 +7081,7 @@ begin
         Result := TextPos;
 end;
 
-function TtsGridEditBox.TextStartOffset(PText : PAnsiChar; Chars : Integer) : Integer;
+function TtsGridEditBox.TextStartOffset(PText : PChar; Chars : Integer) : Integer;
 var
     CharWidth : Integer;
     LeftOffset : Integer;
@@ -7103,7 +7103,7 @@ begin
     end;
 end;
 
-function TtsGridEditBox.LineCaretPosLeft(PText : PAnsiChar; Chars : Integer; XPos : Integer; var CaretPosX : Integer) : Integer;
+function TtsGridEditBox.LineCaretPosLeft(PText : PChar; Chars : Integer; XPos : Integer; var CaretPosX : Integer) : Integer;
 var
     Position : Integer;
     PrevX : Integer;
@@ -7147,7 +7147,7 @@ begin
     Result := Position;
 end;
 
-function TtsGridEditBox.LineCaretPosRight(PText : PAnsiChar; Chars : Integer; XPos : Integer; var CaretPosX : Integer) : Integer;
+function TtsGridEditBox.LineCaretPosRight(PText : PChar; Chars : Integer; XPos : Integer; var CaretPosX : Integer) : Integer;
 var
     Position : Integer;
     PrevX : Integer;
@@ -7188,7 +7188,7 @@ begin
     Result := Position;
 end;
 
-function TtsGridEditBox.LineCaretPos(PText : PAnsiChar; Chars : Integer; XPos : Integer; var CaretPosX : Integer) : Integer;
+function TtsGridEditBox.LineCaretPos(PText : PChar; Chars : Integer; XPos : Integer; var CaretPosX : Integer) : Integer;
 begin
     Result := 0;
     CaretPosX := 0;
@@ -7304,8 +7304,8 @@ begin
         while (FCaretPos.X + Metric.tmOverhang >= ScrollPos) and
               (FCaretPos.X > 0) and (FStartDisplayChar < Length(FText)) do
         begin
-            Chars := NextCharCount(PAnsiChar(FText), FStartDisplayChar);
-            GetPrintCharWidth(Canvas, Metric, PAnsiChar(FText) + FStartDisplayChar,
+            Chars := NextCharCount(PChar(FText), FStartDisplayChar);
+            GetPrintCharWidth(Canvas, Metric, PChar(FText) + FStartDisplayChar,
                               Chars, IsMultiLine, False, CharWidth);
 
             FCaretPos.X := FCaretPos.X - CharWidth;
@@ -7333,9 +7333,9 @@ begin
         GetTextMetrics(Canvas.Handle, Metric);
         while (FCaretPos.X < ScrollPos) and (FStartDisplayChar > 0) do
         begin
-            Chars := PrevCharCount(PAnsiChar(FText), FStartDisplayChar);
+            Chars := PrevCharCount(PChar(FText), FStartDisplayChar);
             GetPrintCharWidth(Canvas, Metric,
-                              PAnsiChar(FText) + FStartDisplayChar - Chars,
+                              PChar(FText) + FStartDisplayChar - Chars,
                               Chars, IsMultiLine, False, CharWidth);
 
             FCaretPos.X := FCaretPos.X + CharWidth;
@@ -7425,12 +7425,12 @@ var
     Metric : TTextMetric;
 begin
     if MoveWord then
-        Chars := NextWordCount(PAnsiChar(FText), FTextPos)
+        Chars := NextWordCount(PChar(FText), FTextPos)
     else
-        Chars := NextCharCount(PAnsiChar(FText), FTextPos);
+        Chars := NextCharCount(PChar(FText), FTextPos);
 
     GetTextMetrics(Canvas.Handle, Metric);
-    GetPrintCharWidth(Canvas, Metric, PAnsiChar(FText) + FTextPos, Chars,
+    GetPrintCharWidth(Canvas, Metric, PChar(FText) + FTextPos, Chars,
                       IsMultiLine, False, Width);
 
     FCaretPos.X := FCaretPos.X + Width;
@@ -7451,16 +7451,16 @@ begin
         begin
             SetTextPosition(FTextPos, true);
 
-            if MoveWord and IsSpaceChar(PAnsiChar(FText), FTextPos) then
+            if MoveWord and IsSpaceChar(PChar(FText), FTextPos) then
                 MoveRightMultiLine(Redraw, MoveWord);
         end;
     end
     else
     begin
         if MoveWord then
-            Chars := NextWordCount(PAnsiChar(FText), FTextPos)
+            Chars := NextWordCount(PChar(FText), FTextPos)
         else
-            Chars := NextCharCount(PAnsiChar(FText), FTextPos);
+            Chars := NextCharCount(PChar(FText), FTextPos);
 
         FCaretBeforePos := (FCaretOffset + Chars <> TextLineLength(FCaretRow));
         SetTextPosition(FTextPos + Chars, FCaretBeforePos);
@@ -7514,12 +7514,12 @@ var
     Metric : TTextMetric;
 begin
     if MoveWord then
-        Chars := PrevWordCount(PAnsiChar(FText), FTextPos)
+        Chars := PrevWordCount(PChar(FText), FTextPos)
     else
-        Chars := PrevCharCount(PAnsiChar(FText), FTextPos);
+        Chars := PrevCharCount(PChar(FText), FTextPos);
 
     GetTextMetrics(Canvas.Handle, Metric);
-    GetPrintCharWidth(Canvas, Metric, PAnsiChar(FText) + FTextPos - Chars, Chars,
+    GetPrintCharWidth(Canvas, Metric, PChar(FText) + FTextPos - Chars, Chars,
                       IsMultiLine, False, Width);
 
     FCaretPos.X := FCaretPos.X - Width;
@@ -7538,11 +7538,11 @@ begin
     begin
         if FCaretRow > 0 then
         begin
-            if not LastCharIsEofLine(PAnsiChar(FText), FTextPos) then
+            if not LastCharIsEofLine(PChar(FText), FTextPos) then
                 SetTextPosition(FTextPos, false)
             else
             begin
-                Chars := PrevCharCount(PAnsiChar(FText), FTextPos);
+                Chars := PrevCharCount(PChar(FText), FTextPos);
                 SetTextPosition(FTextPos - Chars, true);
             end;
         end;
@@ -7550,9 +7550,9 @@ begin
     else
     begin
         if MoveWord then
-            Chars := PrevWordCount(PAnsiChar(FText), FTextPos)
+            Chars := PrevWordCount(PChar(FText), FTextPos)
         else
-            Chars := PrevCharCount(PAnsiChar(FText), FTextPos);
+            Chars := PrevCharCount(PChar(FText), FTextPos);
 
         SetTextPosition(FTextPos - Chars, true);
     end;
@@ -7908,9 +7908,9 @@ begin
     Chars := TextLineLength(FCaretRow) - FCaretOffset;
     FCaretBeforePos := false;
 
-    if LastCharIsEofLine(PAnsiChar(FText) + FTextPos, Chars) and IsMultiLine then
+    if LastCharIsEofLine(PChar(FText) + FTextPos, Chars) and IsMultiLine then
     begin
-        Chars := Chars - PrevCharCount(PAnsiChar(FText) + FTextPos, Chars);
+        Chars := Chars - PrevCharCount(PChar(FText) + FTextPos, Chars);
         FCaretBeforePos := true;
     end;
 
@@ -7977,9 +7977,9 @@ begin
     Result := True;
     if MaxLength > 0 then
     begin
-        NewLength := PByteToCharLen(PAnsiChar(FText), Length(FText), Length(FText)) -
+        NewLength := PByteToCharLen(PChar(FText), Length(FText), Length(FText)) -
                      SelLength +
-                     PByteToCharLen(PAnsiChar(InsertText), Length(InsertText), Length(InsertText));
+                     PByteToCharLen(PChar(InsertText), Length(InsertText), Length(InsertText));
 
         if InsertText = Chr(VK_RETURN) then Inc(NewLength);
         if NewLength > MaxLength then Result := False;
@@ -8037,14 +8037,14 @@ begin
         if Keys = Chr(VK_RETURN) then Inc(FStartDisplayChar);
     end;
 
-    GetTextLines(Canvas.Handle, PAnsiChar(FText), Height, Width, Alignment,
+    GetTextLines(Canvas.Handle, PChar(FText), Height, Width, Alignment,
                  (WordWrap <> wwOff), FTextLines, 0);
     SetTextPosition(FTextPos, FCaretBeforePos);
     SetSelByteStart(FTextPos);
 
     if EditTextResized(True) then
     begin
-        GetTextLines(Canvas.Handle, PAnsiChar(FText), Height, Width, Alignment,
+        GetTextLines(Canvas.Handle, PChar(FText), Height, Width, Alignment,
                      (WordWrap <> wwOff), FTextLines, 0);
     end;
 
@@ -8053,7 +8053,7 @@ begin
     Count := 0;
     while Count < Length(Keys) do
     begin
-        Count := Count + NextCharCount(PAnsiChar(Keys), Count);
+        Count := Count + NextCharCount(PChar(Keys), Count);
         if FCaretOffset = TextLineLength(FCaretRow) then MoveRight(false, false, false);
         MoveRight(false, false, false);
     end;
@@ -8074,14 +8074,14 @@ begin
     Changed := True;
     System.Delete(FText, FSelByteStart + 1, FSelByteLength);
 
-    GetTextLines(Canvas.Handle, PAnsiChar(FText), Height, Width, Alignment,
+    GetTextLines(Canvas.Handle, PChar(FText), Height, Width, Alignment,
                  (WordWrap <> wwOff), FTextLines, 0);
     SetTextPosition(FSelByteStart, CaretBeforePos);
     SetSelByteStart(FSelByteStart);
 
     if EditTextResized(True) then
     begin
-        GetTextLines(Canvas.Handle, PAnsiChar(FText), Height, Width, Alignment,
+        GetTextLines(Canvas.Handle, PChar(FText), Height, Width, Alignment,
                      (WordWrap <> wwOff), FTextLines, 0);
     end;
 end;
@@ -8121,7 +8121,7 @@ begin
     end;
 
     SaveOldText;
-    Chars := NextCharCount(PAnsiChar(FText), FTextPos);
+    Chars := NextCharCount(PChar(FText), FTextPos);
 
     CaretBeforePos := true;
     if FCaretOffset = TextLineLength(FCaretRow) - Chars then
@@ -8132,14 +8132,14 @@ begin
     Changed := true;
     System.Delete(FText, FTextPos + 1, Chars);
 
-    GetTextLines(Canvas.Handle, PAnsiChar(FText), Height, Width, Alignment,
+    GetTextLines(Canvas.Handle, PChar(FText), Height, Width, Alignment,
                  (WordWrap <> wwOff), FTextLines, 0);
     SetTextPosition(FTextPos, CaretBeforePos);
     SetSelByteStart(FTextPos);
 
     if EditTextResized(True) then
     begin
-        GetTextLines(Canvas.Handle, PAnsiChar(FText), Height, Width, Alignment,
+        GetTextLines(Canvas.Handle, PChar(FText), Height, Width, Alignment,
                      (WordWrap <> wwOff), FTextLines, 0);
     end;
 
@@ -8248,7 +8248,7 @@ begin
     inherited;
     if HandleAllocated then
     begin
-        GetTextLines(Canvas.Handle, PAnsiChar(FText), Height, Width, Alignment,
+        GetTextLines(Canvas.Handle, PChar(FText), Height, Width, Alignment,
                      (WordWrap <> wwOff), FTextLines, 0);
         SetTextPosition(FTextPos, FCaretBeforePos);
     end;
@@ -8463,7 +8463,7 @@ begin
       Canvas.Brush.Color := keepBrushColor;
     end;
 
-    DisplayTextLines(Canvas, PAnsiChar(FText), Height, ARect, Left, Top, TtsBaseGrid(Grid).CellPadding,
+    DisplayTextLines(Canvas, PChar(FText), Height, ARect, Left, Top, TtsBaseGrid(Grid).CellPadding,
                      FStartDisplayChar, FFirstDisplayRow, FTextLines,
                      DisplaySelStart, DisplaySelLength, clHighLight,
                      clHighLightText, Alignment, VertAlignment, (WordWrap <> wwOff));
@@ -10607,7 +10607,7 @@ end;
 
 function TtsEditGridControl.GetText : string;
 begin
-    Result := PAnsiChar(TtsGridEditBox(FControl).Text);
+    Result := PChar(TtsGridEditBox(FControl).Text);
 end;
 
 procedure TtsEditGridControl.SetText(Value: string);
@@ -12345,10 +12345,10 @@ var textValue : String;
     begin
       if (textValue[i] in ['-','0','1','2','3','4','5','6','7','8','9',',','.','(',')']) then
          Inc(j)
-      else if (System.Copy(textValue, i, Length(FormatSettings.CurrencyString)) = FormatSettings.CurrencyString) then
+      else if (System.Copy(textValue, i, Length(CurrencyString)) = CurrencyString) then
       begin
-         Inc(j, Length(FormatSettings.CurrencyString));
-         Inc(i, Length(FormatSettings.CurrencyString)-1);
+         Inc(j, Length(CurrencyString));
+         Inc(i, Length(CurrencyString)-1);
       end;
       Inc(i);
     end;
@@ -16064,9 +16064,9 @@ begin
     if MaxLen > 0 then
     begin
         Text := FValue;
-        NewLen := PByteToCharLen(PAnsiChar(Text), Length(Text), Length(Text)) -
+        NewLen := PByteToCharLen(PChar(Text), Length(Text), Length(Text)) -
                   SelLength +
-                  PByteToCharLen(PAnsiChar(InsertText), Length(InsertText), Length(InsertText));
+                  PByteToCharLen(PChar(InsertText), Length(InsertText), Length(InsertText));
         Result := NewLen <= MaxLen;
     end;
 end;
@@ -16915,7 +16915,7 @@ begin
     begin
         PropStr := Reader.ReadString;
         Properties := [];
-        CopyMemory(@Properties, PAnsiChar(PropStr), CalcMin(SizeOf(Properties), Length(PropStr)));
+        CopyMemory(@Properties, PChar(PropStr), CalcMin(SizeOf(Properties), Length(PropStr)));
     end;
 end;
 
@@ -16923,7 +16923,7 @@ procedure TtsGridStreamComponent.WriteProperties(Writer: TWriter);
 var
     PropStr: string;
 begin
-    SetString(PropStr, PAnsiChar(@Properties), SizeOf(Properties));
+    SetString(PropStr, PChar(@Properties), SizeOf(Properties));
     Writer.WriteString(PropStr);
 end;
 
@@ -17337,7 +17337,7 @@ begin
             Result := -1
     end
     else
-        Result := AnsiStrLComp(PAnsiChar(Value1),PAnsiChar(Value2), Len);
+        Result := AnsiStrLComp(PChar(Value1), PChar(Value2), Len);
 end;
 
 function TtsCombo.CompCaseInsensitive(Value1, Value2: string; Len: Integer): Integer;
@@ -17352,7 +17352,7 @@ begin
             Result := -1
     end
     else
-        Result := AnsiStrLIComp(PAnsiChar(Value1), PAnsiChar(Value2), Len);
+        Result := AnsiStrLIComp(PChar(Value1), PChar(Value2), Len);
 end;
 
 procedure TtsCombo.SearchBinary(Top, Bottom: Longint; CmpValue: string;
@@ -24818,7 +24818,7 @@ begin
     OldFont := Canvas.Font;
     try
         Canvas.Font := Font;
-        GetTextHeight(Canvas.Handle, PAnsiChar(Value), DrawWidth, Alignment,
+        GetTextHeight(Canvas.Handle, PChar(Value), DrawWidth, Alignment,
                       (WordWrap <> wwOff), TextLines, TextHeight);
         TextHeight := TextHeight + 1;
     finally
@@ -24893,7 +24893,7 @@ begin
    Value := Cell[DataCol, DataRow];
    bMultiLine := (CellWordWrap[DataCol, DataRow] = wwOn) or
                  ((Self.WordWrap = wwOn) and (CellWordWrap[DataCol, DataRow] = wwDefault));
-   GetPrintCharWidth(Canvas, Metric, PAnsiChar(Value),
+   GetPrintCharWidth(Canvas, Metric, Pchar(Value),
                      Length(Value), bMultiLine, False, Result);
 end;
 
@@ -26410,7 +26410,7 @@ begin
            useVertAlignment := Self.VertAlignment;
         if (useVertAlignment = vtaDefault) then
            useVertAlignment := vtaTop;
-        DisplayText(Canvas, PAnsiChar(startValue), mergeRect.Bottom-mergeRect.Top-FVertLineWidth,
+        DisplayText(Canvas, PChar(startValue), mergeRect.Bottom-mergeRect.Top-FVertLineWidth,
                     DrawData.DrawRect, DrawData.DrawRect.Left + FCellPadding, DrawData.DrawRect.Top, FCellPadding,
                     theCol.Alignment, useVertAlignment, (theCol.WordWrap <> wwOff), bShowEllipsis, False, 0);
         if (Canvas.Pen.Color = Canvas.Brush.Color) then
@@ -27083,7 +27083,7 @@ begin
             Result := -1
     end
     else
-        Result := AnsiStrLComp(PAnsiChar(Value1), PAnsiChar(Value2), Len);
+        Result := AnsiStrLComp(PChar(Value1), PChar(Value2), Len);
 end;
 
 function TtsBaseGrid.CompCaseInsensitive(Value1, Value2: string; Len: Integer): Integer;
@@ -27098,7 +27098,7 @@ begin
             Result := -1
     end
     else
-        Result := AnsiStrLIComp(PAnsiChar(Value1), PAnsiChar(Value2), Len);
+        Result := AnsiStrLIComp(PChar(Value1), PChar(Value2), Len);
 end;
 
 procedure TtsBaseGrid.PositionComboRow;
@@ -27775,7 +27775,7 @@ begin
     else if (DX > 0) and (DY = 0) then
         ScrollRight(DX)
     else
-        {inherited} ScrollDataInfo(DX, DY, DrawInfo);
+        inherited ScrollDataInfo(DX, DY, DrawInfo);
 end;
 
 procedure TtsBaseGrid.ScrollRowSelect(Delta: Integer);
@@ -27824,7 +27824,7 @@ begin
             else ScrollControlVertical(DY);
     end
     else
-        {inherited} ScrollDataInfo(DX, DY, DrawInfo);
+        inherited ScrollDataInfo(DX, DY, DrawInfo);
 end;
 
 procedure TtsBaseGrid.ScrollDataInfo(DX, DY: Integer; var DrawInfo: TGridDrawInfo);
@@ -34822,13 +34822,13 @@ begin
             dtDate:
                 Fmt := GetEditDateFormat(True);
             dtTime:
-                Fmt := Formatsettings.LongTimeFormat;
+                Fmt := LongTimeFormat;
             dtDateTime:
                 begin
                     Fmt := GetEditDateFormat(True);
                     DecodeTime(Value, Hour, Min, Sec, MSec);
                     if (Hour <> 0) or (Min <> 0) or (Sec <> 0) then
-                        Fmt := Trim(Fmt) + ' ' + Formatsettings.LongTimeFormat;
+                        Fmt := Trim(Fmt) + ' ' + LongTimeFormat;
                 end;
         end;
 
@@ -35020,7 +35020,7 @@ var
 begin
     if FastAssign then
     begin
-        {inherited} MoveTopLeft(ALeft, ATop);
+        inherited MoveTopLeft(ALeft, ATop);
         Exit;
     end;
 
@@ -35038,7 +35038,7 @@ begin
         CheckHideControl(False);
         OldCol := FCurDisplayCol;
         OldRow := FCurDisplayRow;
-        {inherited} MoveTopLeft(ALeft, ATop);
+        inherited MoveTopLeft(ALeft, ATop);
         if Show then ShowGridControl;
         if (OldCol <> FCurDisplayCol) or (OldRow <> FCurDisplayRow) then
             InvalidateCell(OldCol, OldRow);
@@ -36436,7 +36436,7 @@ begin
                     Inc(TextRect.Right);
             end;
 
-            DisplayText(Canvas, PAnsiChar(Heading), HeadingHeight, TextRect,
+            DisplayText(Canvas, PChar(Heading), HeadingHeight, TextRect,
                         TextRect.Left + FCellPadding, TextRect.Top, FCellPadding, 
                         Alignment, VertAlignment, (WordWrap <> wwOff), False, False, AccelKeyPos);
 
@@ -37090,7 +37090,7 @@ begin
     end;
 end;
 
-procedure TtsBaseGrid.DrawTextInRect(Value: PAnsiChar; var DrawData: TtsDrawData; DrawControl: Boolean; DrawSelected: Boolean);
+procedure TtsBaseGrid.DrawTextInRect(Value: PChar; var DrawData: TtsDrawData; DrawControl: Boolean; DrawSelected: Boolean);
 var
     AColor: TColor;
     bShowEllipsis : Boolean;
@@ -37143,7 +37143,7 @@ begin
     end;
 end;
 
-procedure TtsBaseGrid.DrawText(Value: PAnsiChar; var DrawData: TtsDrawData; DrawSelected: Boolean);
+procedure TtsBaseGrid.DrawText(Value: PChar; var DrawData: TtsDrawData; DrawSelected: Boolean);
 begin
     with DrawData do
     begin
@@ -39035,7 +39035,7 @@ begin
 end;
 
 procedure TtsBaseGrid.AssignCellValue(DataCol, DataRow: Longint; var DrawData: TtsDrawData;
-                                      DrawSelected: Boolean; const Value: Variant; PValue: PAnsiChar; Edit, ByUser: Boolean);
+                                      DrawSelected: Boolean; const Value: Variant; PValue: PChar; Edit, ByUser: Boolean);
 var
     DisplayCol, DisplayRow : Longint;
     DrawAsControl: Boolean;
@@ -39131,7 +39131,7 @@ begin
                             except
                               Text := VarToStr(Value);
                             end;
-                        DrawText(PAnsiChar(Text), DrawData, DrawSelected);
+                        DrawText(PChar(Text), DrawData, DrawSelected);
                     end;
 
                 ctCheck:
@@ -39386,7 +39386,7 @@ begin
     end;
 end;
 
-procedure TtsBaseGrid.SetCellPText(DataCol: Longint; DataRow: Longint; Value: PAnsiChar);
+procedure TtsBaseGrid.SetCellPText(DataCol: Longint; DataRow: Longint; Value: PChar);
 var
     VarValue: Variant;
     DrawData: TtsDrawData;
